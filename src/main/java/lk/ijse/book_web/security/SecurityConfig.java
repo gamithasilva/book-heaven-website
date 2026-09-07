@@ -50,15 +50,20 @@ public class SecurityConfig {
                         auth
 
                                 // Authentication
-                                .requestMatchers(
-                                        "/api/auth/**"
-                                ).permitAll()
+                                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 
                                 // Public book browsing
                                 .requestMatchers(
                                         HttpMethod.GET,
                                         "/api/v1/books/**"
                                 ).permitAll()
+
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/category/**"
+                                ).permitAll()
+
+                                .requestMatchers("/api/auth/me").authenticated()
 
                                 // Customer
                                 .requestMatchers(

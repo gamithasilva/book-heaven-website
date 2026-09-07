@@ -150,4 +150,48 @@ public class AuthServiceImpl implements AuthService{
                 )
         );
     }
+
+
+    @Override
+    public UserDataDTO registerManager(RegisterRequest request) {
+
+        if (customerRepository.existsByEmail(
+                request.getEmail())) {
+
+            throw new RuntimeException(
+                    "Email already exists"
+            );
+        }
+
+        if (managerRepository.existsByEmail(
+                request.getEmail())) {
+
+            throw new RuntimeException(
+                    "Email already exists"
+            );
+        }
+
+        Manager manager =
+                Manager.builder()
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .email(request.getEmail())
+                        .password(
+                                passwordEncoder.encode(
+                                        request.getPassword()
+                                )
+                        )
+                        .phone(request.getPhone())
+                        .status(AccountStatus.ACTIVE)
+                        .build();
+
+        managerRepository.save(manager);
+
+        return login(
+                new LoginRequest(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+    }
 }

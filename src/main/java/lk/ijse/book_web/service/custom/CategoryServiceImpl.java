@@ -9,13 +9,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-
+    @Override
     public void saveCategory(CategoryDTO categoryDTO) {
         log.info("Saving category {}", categoryDTO);
         try{
@@ -30,6 +33,45 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
     }
+
+    @Override
+    public List<CategoryDTO> getAllCategories() {
+        log.info("Fetching all categories");
+        try {
+            List<Category> categories = categoryRepository.findAll();
+
+            return categories.stream()
+                    .map(category -> new CategoryDTO(
+                            category.getId(),
+                            category.getName(),
+                            category.getDescription(),
+                            category.getStatus(),
+                            category.getCreatedAt()))
+                    .toList();
+        } catch (Exception e) {
+            log.error("failed to fetch categories{}", String.valueOf(e));
+            throw new CustomException(500, "failed to fetch categories");
+        }
+
+
+    }
+
+    @Override
+    public CategoryDTO getCategoryDetails(Long id){
+        log.info("Fetching category {}", id);
+        Optional<Category> OptionalCategory = categoryRepository.findById(id);
+        if(OptionalCategory.isEmpty()){
+            throw new CustomException(404,"category not found");
+        }
+        Category category = OptionalCategory.get();
+        return new CategoryDTO(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.getStatus(),
+                category.getCreatedAt());
+    }
+
 
 
 

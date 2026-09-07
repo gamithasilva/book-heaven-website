@@ -8,4 +8,6 @@ public interface AuthService {
     UserDataDTO login(LoginRequest request);
 
     UserDataDTO register(RegisterRequest request);
+
+    UserDataDTO registerManager(RegisterRequest request);
 }
