@@ -28,7 +28,7 @@ public class Category {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountStatus status;
+    private AccountStatus status = AccountStatus.ACTIVE;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

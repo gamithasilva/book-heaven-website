@@ -1059,3 +1059,10 @@ button, input, select {
         gap: 0.75rem;
     }
 }
+
+#category-filter-group{
+    max-height: 300px;   /* limit the height */
+    overflow-y: auto;    /* enable vertical scrolling */
+    /*border: 1px solid #ccc; !* optional: just to visualize the box *!*/
+    padding: 5px;
+}
