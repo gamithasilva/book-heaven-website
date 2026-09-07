@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - BookHaven Manager</title>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/customers.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <div class="brand-details">
+                    <span class="brand-name">BookHaven</span>
+                    <span class="brand-portal">Manager Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item active">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="#" class="nav-item text-danger" id="logoutBtn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="icon-btn" id="sidebarToggle" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="top-bar-right">
+                    <button class="icon-btn theme-toggle" id="themeToggle" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="notification-wrapper">
+                        <button class="icon-btn" title="Notifications">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="badge-dot"></span>
+                        </button>
+                    </div>
+                    <div class="user-profile-menu">
+                        <img src="https://ui-avatars.com/api/?name=Manager&background=4f46e5&color=fff" alt="Manager Avatar" class="top-avatar">
+                        <span class="user-name">Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Body Container -->
+            <div class="content-body">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Customer Management</h1>
+                        <p class="page-subtitle">View and manage BookHaven customer accounts.</p>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards Section -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary-light text-primary">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Customers</span>
+                            <h3 class="stat-value" id="statTotalCustomers">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success-light text-success">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Active Customers</span>
+                            <h3 class="stat-value" id="statActiveCustomers">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-danger-light text-danger">
+                            <i class="fa-solid fa-user-slash"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Inactive Customers</span>
+                            <h3 class="stat-value" id="statInactiveCustomers">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-warning-light text-warning">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">New This Month</span>
+                            <h3 class="stat-value" id="statNewCustomers">0</h3>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Search Controls -->
+                <section class="search-section">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name, email, phone...">
+                        <button class="btn btn-primary" id="btnSearch">Search</button>
+                    </div>
+                </section>
+
+                <!-- Filters & Sorting Control Card -->
+                <section class="filter-card">
+                    <div class="filter-card-header">
+                        <span class="filter-title"><i class="fa-solid fa-filter"></i> Filters & Sorting</span>
+                        <button class="btn-toggle-filters" id="btnToggleFilters">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="filter-card-body" id="filterCardBody">
+                        <div class="filter-grid">
+                            <!-- Status Filter -->
+                            <div class="filter-group">
+                                <label for="filterStatus">Account Status</label>
+                                <select id="filterStatus" class="form-control">
+                                    <option value="ALL">All Customers</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                </select>
+                            </div>
+
+                            <!-- Registration Filter -->
+                            <div class="filter-group">
+                                <label for="filterRegistration">Registration</label>
+                                <select id="filterRegistration" class="form-control">
+                                    <option value="ALL">All Time</option>
+                                    <option value="TODAY">Today</option>
+                                    <option value="LAST_7_DAYS">Last 7 Days</option>
+                                    <option value="LAST_30_DAYS">Last 30 Days</option>
+                                    <option value="THIS_YEAR">This Year</option>
+                                </select>
+                            </div>
+
+                            <!-- Order Activity Filter -->
+                            <div class="filter-group">
+                                <label for="filterActivity">Order Activity</label>
+                                <select id="filterActivity" class="form-control">
+                                    <option value="ALL">All Customers</option>
+                                    <option value="HAS_ORDERS">Has Orders</option>
+                                    <option value="NO_ORDERS">No Orders</option>
+                                </select>
+                            </div>
+
+                            <!-- Spending Filter -->
+                            <div class="filter-group">
+                                <label for="filterSpending">Spending</label>
+                                <select id="filterSpending" class="form-control">
+                                    <option value="ALL">All</option>
+                                    <option value="UNDER_5000">Under Rs. 5,000</option>
+                                    <option value="5000_20000">Rs. 5,000–20,000</option>
+                                    <option value="20000_50000">Rs. 20,000–50,000</option>
+                                    <option value="OVER_50000">Over Rs. 50,000</option>
+                                </select>
+                            </div>
+
+                            <!-- Sorting Filter -->
+                            <div class="filter-group">
+                                <label for="sortBy">Sort By</label>
+                                <select id="sortBy" class="form-control">
+                                    <option value="NEWEST">Newest Customers</option>
+                                    <option value="OLDEST">Oldest Customers</option>
+                                    <option value="NAME_ASC">Name A-Z</option>
+                                    <option value="NAME_DESC">Name Z-A</option>
+                                    <option value="SPENDING_HIGH">Highest Spending</option>
+                                    <option value="SPENDING_LOW">Lowest Spending</option>
+                                    <option value="ORDERS_MOST">Most Orders</option>
+                                    <option value="ORDERS_LEAST">Least Orders</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button class="btn btn-primary" id="btnApplyFilters">Apply Filters</button>
+                            <button class="btn btn-secondary" id="btnClearFilters">Clear Filters</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customer Table Component -->
+                <section class="table-container">
+                    <table class="data-table" id="customersTable">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Joined</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <!-- Dynamic Content Rendered Here -->
+                        </tbody>
+                    </table>
+
+                    <!-- Loading / Empty States -->
+                    <div id="tableLoadingState" class="state-container hidden">
+                        <i class="fa-solid fa-spinner fa-spin spinner"></i>
+                        <p>Loading customers...</p>
+                    </div>
+
+                    <div id="tableEmptyState" class="state-container hidden">
+                        <i class="fa-solid fa-user-slash empty-icon"></i>
+                        <h3>No Customers Found</h3>
+                        <p>Try changing your search or filter options.</p>
+                        <button class="btn btn-secondary" id="btnClearFiltersEmpty">Clear Filters</button>
+                    </div>
+
+                    <!-- Pagination Footer -->
+                    <div class="pagination-wrapper" id="paginationWrapper">
+                        <div class="pagination-info" id="paginationInfo">
+                            Showing 0–0 of 0 customers
+                        </div>
+                        <div class="pagination-controls" id="paginationControls">
+                            <!-- Dynamic Pagination Buttons -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Customer Details Modal -->
+    <div class="modal-backdrop hidden" id="customerDetailsModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Customer Profile</h3>
+                <button class="modal-close" id="btnCloseDetailsModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalDetailsContent">
+                <!-- Dynamically Populated Profile Data -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCloseModalFooter">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Change Confirmation Modal -->
+    <div class="modal-backdrop hidden" id="statusConfirmModal">
+        <div class="modal-container modal-sm">
+            <div class="modal-header">
+                <h3 id="statusModalTitle">Confirm Action</h3>
+                <button class="modal-close" id="btnCloseStatusModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="statusModalMessage">Are you sure you want to alter this customer account status?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelStatus">Cancel</button>
+                <button class="btn" id="btnConfirmStatus">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Floating Widget -->
+    <div class="ai-widget">
+        <button class="ai-trigger-btn" id="aiTriggerBtn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div class="ai-chat-window hidden" id="aiChatWindow">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>BookHaven Assistant</span>
+                </div>
+                <button class="ai-chat-close" id="btnAiClose">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="aiChatMessages">
+                <div class="ai-msg ai-msg-bot">
+                    Hi Manager! I can help you analyze your customers.
+                </div>
+            </div>
+            <div class="ai-chat-suggestions">
+                <span class="suggestion-chip" data-query="How many customers do we have?">Total customers?</span>
+                <span class="suggestion-chip" data-query="How many new customers joined this month?">New this month?</span>
+                <span class="suggestion-chip" data-query="Who are the top customers by spending?">Top spenders?</span>
+                <span class="suggestion-chip" data-query="How many customers have never placed an order?">No orders?</span>
+                <span class="suggestion-chip" data-query="How many inactive customers are there?">Inactive count?</span>
+                <span class="suggestion-chip" data-query="Which customers have the most orders?">Most orders?</span>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask a question about customers...">
+                <button id="btnAiSend"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom JS -->
+    <script src="js/customers.js"></script>
+</body>
+</html>

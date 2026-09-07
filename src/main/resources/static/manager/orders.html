@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Haven | Manager - Order Management</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Shared & Manager CSS -->
+    <link rel="stylesheet" href="css/orders.css">
+</head>
+<body class="light-mode">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <div class="brand-text">
+                    <h2>BookHaven</h2>
+                    <span>Manager Portal</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item active">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="profile.html" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <button id="logoutBtn" class="nav-item logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="top-left">
+                    <button id="sidebarToggle" class="icon-btn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="top-right">
+                    <button class="icon-btn notification-btn" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Manager Avatar" class="avatar">
+                        <span class="user-name">Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1>Order Management</h1>
+                        <p class="subtitle">View, process, and manage customer orders.</p>
+                    </div>
+                </div>
+
+                <!-- Order Dynamic KPI Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total"><i class="fa-solid fa-boxes-stack"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Orders</span>
+                            <h3 id="statTotal">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending"><i class="fa-solid fa-clock"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Pending</span>
+                            <h3 id="statPending">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon confirmed"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Confirmed</span>
+                            <h3 id="statConfirmed">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon processing"><i class="fa-solid fa-gear"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Processing</span>
+                            <h3 id="statProcessing">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon shipped"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Shipped</span>
+                            <h3 id="statShipped">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon delivered"><i class="fa-solid fa-house-circle-check"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Delivered</span>
+                            <h3 id="statDelivered">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters & Controls Section -->
+                <div class="filter-card">
+                    <div class="filter-header">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchInput" placeholder="Search by order number, customer name, email, or book title...">
+                            <button id="clearSearchBtn" class="btn-clear hidden" title="Clear Search"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <button id="toggleFilterBtn" class="btn btn-secondary filter-toggle-btn">
+                            <i class="fa-solid fa-filter"></i> <span>Filters</span>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Filter Form Controls -->
+                    <div class="filter-body" id="filterBody">
+                        <div class="filter-grid">
+                            <div class="filter-group">
+                                <label for="filterStatus">Order Status</label>
+                                <select id="filterStatus" class="form-control">
+                                    <option value="ALL">All Orders</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="CONFIRMED">Confirmed</option>
+                                    <option value="PROCESSING">Processing</option>
+                                    <option value="SHIPPED">Shipped</option>
+                                    <option value="DELIVERED">Delivered</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="filterPaymentStatus">Payment Status</label>
+                                <select id="filterPaymentStatus" class="form-control">
+                                    <option value="ALL">All</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="FAILED">Failed</option>
+                                    <option value="REFUNDED">Refunded</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="filterPaymentMethod">Payment Method</label>
+                                <select id="filterPaymentMethod" class="form-control">
+                                    <option value="ALL">All</option>
+                                    <option value="CASH_ON_DELIVERY">Cash on Delivery</option>
+                                    <option value="CARD">Card</option>
+                                    <option value="ONLINE">Online Payment</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="filterDate">Date Range</label>
+                                <select id="filterDate" class="form-control">
+                                    <option value="ALL">All Time</option>
+                                    <option value="TODAY">Today</option>
+                                    <option value="LAST_7">Last 7 Days</option>
+                                    <option value="LAST_30">Last 30 Days</option>
+                                    <option value="THIS_YEAR">This Year</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Min Total (LKR)</label>
+                                <input type="number" id="filterMinPrice" class="form-control" placeholder="0">
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Max Total (LKR)</label>
+                                <input type="number" id="filterMaxPrice" class="form-control" placeholder="100000">
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="sortBy">Sort By</label>
+                                <select id="sortBy" class="form-control">
+                                    <option value="NEWEST">Newest First</option>
+                                    <option value="OLDEST">Oldest First</option>
+                                    <option value="TOTAL_DESC">Highest Total</option>
+                                    <option value="TOTAL_ASC">Lowest Total</option>
+                                    <option value="CUSTOMER_ASC">Customer A-Z</option>
+                                    <option value="CUSTOMER_DESC">Customer Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button id="applyFiltersBtn" class="btn btn-primary"><i class="fa-solid fa-check"></i> Apply Filters</button>
+                            <button id="clearFiltersBtn" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Clear Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Master Data Table Container -->
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table" id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Quick Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Rendered dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Loading State Indicator -->
+                    <div id="loadingState" class="state-container hidden">
+                        <div class="spinner"></div>
+                        <p>Loading orders...</p>
+                    </div>
+
+                    <!-- Empty State Placeholder -->
+                    <div id="emptyState" class="state-container hidden">
+                        <i class="fa-solid fa-box-open empty-icon"></i>
+                        <h3>No Orders Found</h3>
+                        <p>Try changing your search or filter options.</p>
+                        <button id="resetStateBtn" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Clear Filters</button>
+                    </div>
+
+                    <!-- Table Footer Pagination -->
+                    <div class="pagination-footer">
+                        <span id="paginationInfo" class="pagination-info">Showing 0-0 of 0 orders</span>
+                        <div class="pagination-controls" id="paginationControls">
+                            <!-- Page buttons inserted dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Detailed View Order Modal -->
+    <div id="orderDetailsModal" class="modal-overlay hidden">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalOrderNumber">BH-2026-00000</h3>
+                    <span id="modalOrderDate" class="subtitle">Placed on --</span>
+                </div>
+                <button class="icon-btn close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body overflow-y">
+                <!-- Status & Progress Tracking Timeline -->
+                <div class="modal-section">
+                    <h4><i class="fa-solid fa-route"></i> Order Tracking Progress</h4>
+                    <div class="timeline" id="orderTimeline">
+                        <!-- Calculated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Status Update Controller -->
+                <div class="modal-section update-status-box">
+                    <div class="form-row align-center">
+                        <div class="form-group flex-1">
+                            <label for="modalStatusSelect">Update Status</label>
+                            <select id="modalStatusSelect" class="form-control">
+                                <option value="PENDING">Pending</option>
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="PROCESSING">Processing</option>
+                                <option value="SHIPPED">Shipped</option>
+                                <option value="DELIVERED">Delivered</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="btn-group-align">
+                            <button id="modalUpdateStatusBtn" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> Update Status</button>
+                            <button id="modalCancelOrderBtn" class="btn btn-danger"><i class="fa-solid fa-ban"></i> Cancel Order</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Details Split -->
+                <div class="modal-grid">
+                    <!-- Customer & Shipping -->
+                    <div class="modal-card-inner">
+                        <div class="inner-header">
+                            <h4><i class="fa-solid fa-user"></i> Customer Information</h4>
+                            <a href="#" id="viewCustomerLink" class="btn-text"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Customer</a>
+                        </div>
+                        <div class="inner-body" id="customerInfoBody">
+                            <!-- Injected JS -->
+                        </div>
+
+                        <div class="inner-header margin-top-15">
+                            <h4><i class="fa-solid fa-location-dot"></i> Delivery Address</h4>
+                        </div>
+                        <div class="inner-body" id="shippingAddressBody">
+                            <!-- Injected JS -->
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="modal-card-inner">
+                        <div class="inner-header">
+                            <h4><i class="fa-solid fa-credit-card"></i> Payment Details</h4>
+                        </div>
+                        <div class="inner-body" id="paymentDetailsBody">
+                            <!-- Injected JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ordered Items Table -->
+                <div class="modal-section margin-top-20">
+                    <h4><i class="fa-solid fa-book"></i> Ordered Books</h4>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Author</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalItemsTableBody">
+                                <!-- Injected JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Order Pricing Breakdown Summary -->
+                <div class="price-summary-box">
+                    <div class="summary-line"><span>Subtotal:</span><span id="summarySubtotal">Rs. 0</span></div>
+                    <div class="summary-line text-green"><span>Discount:</span><span id="summaryDiscount">-Rs. 0</span></div>
+                    <div class="summary-line"><span>Delivery Fee:</span><span id="summaryDelivery">Rs. 0</span></div>
+                    <hr class="form-divider">
+                    <div class="summary-line total-line"><span>Total Amount:</span><span id="summaryTotal">Rs. 0</span></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal Status Change Confirmation Dialog Modal -->
+    <div id="confirmationModal" class="modal-overlay hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to change the status of this order?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmActionBtn" class="btn btn-primary">Confirm</button>
+                <button id="cancelActionBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Logout Modal -->
+    <div id="logoutModal" class="modal-overlay hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Confirm Logout</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmLogoutBtn" class="btn btn-danger">Logout</button>
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant -->
+    <div class="ai-assistant-wrapper">
+        <button id="aiToggleBtn" class="ai-fab">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div id="aiChatCard" class="ai-chat-card hidden">
+            <div class="ai-chat-header">
+                <div class="ai-brand">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>BookHaven AI Assistant</span>
+                </div>
+                <button id="closeAiBtn" class="icon-btn-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ai-chat-body" id="aiChatBody">
+                <div class="ai-message bot">
+                    Hi Manager! I can help you analyze and manage orders.
+                </div>
+                <div class="ai-suggestions">
+                    <button class="ai-chip">How many orders are pending?</button>
+                    <button class="ai-chip">Which orders need to be shipped?</button>
+                    <button class="ai-chip">How many orders were delivered this month?</button>
+                    <button class="ai-chip">What is today's total sales?</button>
+                    <button class="ai-chip">Show me cancelled orders.</button>
+                    <button class="ai-chip">Which customers have the most orders?</button>
+                </div>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask AI something...">
+                <button id="sendAiBtn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Orders Manager Script -->
+    <script src="js/orders.js"></script>
+</body>
+</html>

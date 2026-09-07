@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - BookHaven</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/checkout.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmation-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <i class="fa-solid fa-circle-check modal-icon success"></i>
+                <h3>Order Placed Successfully! 🎉</h3>
+            </div>
+            <p class="modal-sub">Thank you for shopping with BookHaven.</p>
+            <div class="order-details-summary">
+                <div class="detail-row"><span>Order Number:</span> <strong id="confirm-order-id">BH-2026-00125</strong></div>
+                <div class="detail-row"><span>Total:</span> <strong id="confirm-order-total">Rs. 0</strong></div>
+                <div class="detail-row"><span>Payment:</span> <strong id="confirm-payment-method">Cash on Delivery</strong></div>
+                <div class="detail-row"><span>Delivery:</span> <strong id="confirm-delivery-time">2–5 business days</strong></div>
+            </div>
+            <div class="modal-actions">
+                <a href="books.html" class="btn btn-outline">Continue Shopping</a>
+                <a href="orders.html" class="btn btn-primary">View My Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Header Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html">Books</a>
+                    <a href="#">Categories</a>
+                    <a href="#">About</a>
+                </nav>
+            </div>
+            
+            <div class="nav-right">
+                <a href="#" class="nav-icon-btn" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-outline" id="account-btn"><i class="fa-regular fa-user"></i> My Account</a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="index.html">Home</a>
+            <a href="books.html">Books</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <!-- Main Checkout Container -->
+    <main class="container main-content">
+
+        <!-- Stepper Indicator -->
+        <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+                <div class="step-counter"><i class="fa-solid fa-check"></i></div>
+                <div class="step-name">Cart</div>
+            </div>
+            <div class="stepper-item active">
+                <div class="step-counter">2</div>
+                <div class="step-name">Delivery</div>
+            </div>
+            <div class="stepper-item">
+                <div class="step-counter">3</div>
+                <div class="step-name">Payment</div>
+            </div>
+            <div class="stepper-item">
+                <div class="step-counter">4</div>
+                <div class="step-name">Confirmation</div>
+            </div>
+        </div>
+
+        <!-- Page Title & Breadcrumb -->
+        <div class="page-header-container">
+            <div class="page-title-group">
+                <h1>Checkout</h1>
+                <p class="subtitle">Complete your order securely and get your books delivered to your doorstep.</p>
+            </div>
+            <nav class="breadcrumb-container" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li><a href="index.html">Home</a></li>
+                    <li><i class="fa-solid fa-chevron-right"></i></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><i class="fa-solid fa-chevron-right"></i></li>
+                    <li class="active">Checkout</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Empty Cart Protection View -->
+        <div id="empty-checkout-state" class="empty-state" style="display: none;">
+            <div class="empty-icon-wrapper">
+                <i class="fa-solid fa-cart-flatbed empty-icon"></i>
+            </div>
+            <h2>Your Cart is Empty</h2>
+            <p>Please add some books before proceeding to checkout.</p>
+            <a href="books.html" class="btn btn-primary btn-lg"><i class="fa-solid fa-compass"></i> Browse Books</a>
+        </div>
+
+        <!-- Checkout Form Layout -->
+        <div id="checkout-main-layout" class="checkout-layout">
+            
+            <!-- Left Column: Form Controls -->
+            <div class="checkout-form-column">
+                
+                <!-- 1. Delivery Address Section -->
+                <section class="checkout-card">
+                    <div class="card-title-header">
+                        <h2><span class="step-num">1</span> Delivery Address</h2>
+                        <button type="button" class="btn btn-outline btn-sm" id="toggle-address-form-btn">
+                            <i class="fa-solid fa-plus"></i> Add New Address
+                        </button>
+                    </div>
+
+                    <!-- Address Selection Cards -->
+                    <div class="address-grid" id="saved-addresses-grid">
+                        <!-- Dynamic Address Cards Injected Here -->
+                    </div>
+
+                    <!-- New Address Form -->
+                    <form id="new-address-form" class="address-form" style="display: none;">
+                        <h3>Add New Address</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="addr-first-name">First Name *</label>
+                                <input type="text" id="addr-first-name" placeholder="Kaveesha" required>
+                                <span class="error-text" id="err-first-name"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="addr-last-name">Last Name *</label>
+                                <input type="text" id="addr-last-name" placeholder="Silva" required>
+                                <span class="error-text" id="err-last-name"></span>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="addr-phone">Phone Number *</label>
+                                <input type="tel" id="addr-phone" placeholder="0771234567" required>
+                                <span class="error-text" id="err-phone"></span>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="addr-line1">Address Line 1 *</label>
+                                <input type="text" id="addr-line1" placeholder="25 Main Street" required>
+                                <span class="error-text" id="err-line1"></span>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="addr-line2">Address Line 2 (Optional)</label>
+                                <input type="text" id="addr-line2" placeholder="Apartment, Suite, Unit">
+                            </div>
+                            <div class="form-group">
+                                <label for="addr-city">City *</label>
+                                <input type="text" id="addr-city" placeholder="Colombo 01" required>
+                                <span class="error-text" id="err-city"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="addr-postal">Postal Code *</label>
+                                <input type="text" id="addr-postal" placeholder="00100" required>
+                                <span class="error-text" id="err-postal"></span>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="addr-country">Country *</label>
+                                <input type="text" id="addr-country" value="Sri Lanka" required>
+                                <span class="error-text" id="err-country"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-checkbox-group">
+                            <input type="checkbox" id="save-address-check" checked>
+                            <label for="save-address-check">Save this address for future orders</label>
+                        </div>
+
+                        <div class="form-actions-row">
+                            <button type="button" class="btn btn-outline btn-sm" id="cancel-address-btn">Cancel</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="save-address-btn">Save Address</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- 2. Delivery Options Section -->
+                <section class="checkout-card">
+                    <div class="card-title-header">
+                        <h2><span class="step-num">2</span> Delivery Method</h2>
+                    </div>
+                    <div id="free-shipping-banner" class="alert-banner success" style="display: none;">
+                        🎉 You qualify for Free Standard Delivery!
+                    </div>
+                    <div class="delivery-options-grid">
+                        <label class="radio-option-card selected" id="opt-standard">
+                            <input type="radio" name="deliveryMethod" value="STANDARD" checked>
+                            <div class="option-content">
+                                <div class="option-main">
+                                    <strong>Standard Delivery</strong>
+                                    <p>2–5 business days</p>
+                                </div>
+                                <div class="option-price" id="standard-price-label">Rs. 350</div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option-card" id="opt-express">
+                            <input type="radio" name="deliveryMethod" value="EXPRESS">
+                            <div class="option-content">
+                                <div class="option-main">
+                                    <strong>Express Delivery</strong>
+                                    <p>1–2 business days</p>
+                                </div>
+                                <div class="option-price">Rs. 750</div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 3. Payment Method Section -->
+                <section class="checkout-card">
+                    <div class="card-title-header">
+                        <h2><span class="step-num">3</span> Payment Method</h2>
+                    </div>
+
+                    <div class="payment-options-list">
+                        <label class="radio-option-card selected">
+                            <input type="radio" name="paymentMethod" value="CREDIT_CARD" checked>
+                            <div class="option-content">
+                                <strong>Credit / Debit Card</strong>
+                                <div class="card-brands-icons">
+                                    <i class="fa-brands fa-cc-visa"></i>
+                                    <i class="fa-brands fa-cc-mastercard"></i>
+                                    <i class="fa-brands fa-cc-amex"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Credit Card Form Fields -->
+                        <div id="card-payment-fields" class="sub-form-box">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="card-holder">Cardholder Name *</label>
+                                    <input type="text" id="card-holder" placeholder="Kaveesha Silva">
+                                    <span class="error-text" id="err-card-holder"></span>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="card-number">Card Number *</label>
+                                    <input type="text" id="card-number" placeholder="4532 •••• •••• 8954" maxlength="19">
+                                    <span class="error-text" id="err-card-number"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-expiry">Expiry Date *</label>
+                                    <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+                                    <span class="error-text" id="err-card-expiry"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvv">CVV *</label>
+                                    <input type="password" id="card-cvv" placeholder="123" maxlength="4">
+                                    <span class="error-text" id="err-card-cvv"></span>
+                                </div>
+                            </div>
+                            <p class="security-note">
+                                <i class="fa-solid fa-lock"></i> Your payment information is securely processed and is never stored by BookHaven.
+                            </p>
+                        </div>
+
+                        <label class="radio-option-card">
+                            <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY">
+                            <div class="option-content">
+                                <strong>Cash on Delivery</strong>
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </div>
+                        </label>
+                        <div id="cod-info-fields" class="sub-form-box" style="display: none;">
+                            <p class="info-text">Pay with cash when your package is delivered to your address.</p>
+                        </div>
+
+                        <label class="radio-option-card">
+                            <input type="radio" name="paymentMethod" value="BANK_TRANSFER">
+                            <div class="option-content">
+                                <strong>Bank Transfer</strong>
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                        </label>
+                        <div id="bank-info-fields" class="sub-form-box" style="display: none;">
+                            <p class="info-text">Bank transfer instructions and reference details will be provided after placing the order.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Order Notes Section -->
+                <section class="checkout-card">
+                    <div class="card-title-header">
+                        <h2><span class="step-num">4</span> Order Notes (Optional)</h2>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="order-notes" rows="3" placeholder="Any special instructions for your delivery? (e.g. Leave package with security)"></textarea>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Sticky Summary -->
+            <div class="checkout-summary-column">
+                <div class="summary-card">
+                    <h3>Order Summary</h3>
+                    
+                    <!-- Item List Preview -->
+                    <div id="checkout-cart-items" class="summary-items-list">
+                        <!-- Dynamic Items Injected Here -->
+                    </div>
+
+                    <hr class="summary-divider">
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong id="summary-subtotal">Rs. 0</strong>
+                    </div>
+
+                    <div class="summary-row discount-row" id="discount-display-row" style="display: none;">
+                        <span>Discount <small id="applied-coupon-code"></small></span>
+                        <strong id="summary-discount" class="text-success">-Rs. 0</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Delivery</span>
+                        <strong id="summary-delivery">Rs. 350</strong>
+                    </div>
+
+                    <hr class="summary-divider">
+
+                    <div class="summary-row total-row">
+                        <span>Total</span>
+                        <strong id="summary-total">Rs. 0</strong>
+                    </div>
+
+                    <!-- Coupon Input Section -->
+                    <div class="coupon-box">
+                        <label for="coupon-code-input">Have a discount code?</label>
+                        <div class="coupon-input-group">
+                            <input type="text" id="coupon-code-input" placeholder="e.g. BOOK10, SAVE20">
+                            <button type="button" class="btn btn-outline" id="apply-coupon-btn">Apply</button>
+                        </div>
+                        <span class="coupon-message" id="coupon-message"></span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="place-order-btn">
+                        <span id="btn-text">Place Order — Rs. 0</span>
+                        <span id="btn-spinner" class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating AI Assistant -->
+    <div class="ai-widget-container">
+        <button class="ai-trigger-btn" id="ai-trigger-btn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-popup" id="ai-chat-popup" style="display: none;">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small>Checkout Support</small>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-close-btn">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-message bot-message">
+                    Need help with your order or delivery?
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <button class="ai-suggestion-chip">What payment methods are available?</button>
+                    <button class="ai-suggestion-chip">How long will delivery take?</button>
+                    <button class="ai-suggestion-chip">What is my order total?</button>
+                    <button class="ai-suggestion-chip">Can I change my delivery address?</button>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-input" placeholder="Ask a question...">
+                <button id="ai-send-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier destination for online literature browsing and purchasing. Quality books delivered directly to your doorstep.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="#">Categories</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="cart.html">Shopping Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom Checkout JavaScript -->
+    <script src="js/checkout.js"></script>
+</body>
+</html>

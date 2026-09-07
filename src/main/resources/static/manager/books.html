@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Haven | Manager - Book Management</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/books.css">
+</head>
+<body class="light-mode">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <div class="brand-text">
+                    <h2>BookHaven</h2>
+                    <span>Manager Portal</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item active">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="profile.html" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <button id="logoutBtn" class="nav-item logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="top-left">
+                    <button id="sidebarToggle" class="icon-btn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="top-right">
+                    <button class="icon-btn notification-btn" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Manager Avatar" class="avatar">
+                        <span class="user-name">Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1>Book Management</h1>
+                        <p class="subtitle">Manage your books, prices, and stock.</p>
+                    </div>
+                    <a href="book-form.html" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i> Add New Book
+                    </a>
+                </div>
+
+                <!-- Book Statistics Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-blue">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Books</span>
+                            <h3 id="statTotalBooks">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-green">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">In Stock</span>
+                            <h3 id="statInStock">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-amber">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Low Stock</span>
+                            <h3 id="statLowStock">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-red">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Out of Stock</span>
+                            <h3 id="statOutOfStock">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Controls Bar -->
+                <div class="controls-card">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search by book title, author, ISBN...">
+                        <button id="clearSearchBtn" class="btn btn-secondary hidden">Clear</button>
+                    </div>
+
+                    <!-- Collapsible Filter Wrapper for Mobile -->
+                    <div class="filter-wrapper" id="filterWrapper">
+                        <div class="filter-header">
+                            <h3><i class="fa-solid fa-filter"></i> Filters</h3>
+                            <button id="toggleFilterBtn" class="btn-text">
+                                <span class="text">Collapse</span> <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="filter-grid" id="filterGrid">
+                            <div class="filter-group">
+                                <label for="categoryFilter">Category</label>
+                                <select id="categoryFilter" class="form-control">
+                                    <option value="All">All Categories</option>
+                                    <option value="Fiction">Fiction</option>
+                                    <option value="Fantasy">Fantasy</option>
+                                    <option value="Romance">Romance</option>
+                                    <option value="Science Fiction">Science Fiction</option>
+                                    <option value="Programming">Programming</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Biography">Biography</option>
+                                    <option value="History">History</option>
+                                    <option value="Self Help">Self Help</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="stockStatusFilter">Stock Status</label>
+                                <select id="stockStatusFilter" class="form-control">
+                                    <option value="All">All</option>
+                                    <option value="In Stock">In Stock</option>
+                                    <option value="Low Stock">Low Stock</option>
+                                    <option value="Out of Stock">Out of Stock</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="languageFilter">Language</label>
+                                <select id="languageFilter" class="form-control">
+                                    <option value="All">All</option>
+                                    <option value="English">English</option>
+                                    <option value="Sinhala">Sinhala</option>
+                                    <option value="Tamil">Tamil</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Price Range (LKR)</label>
+                                <div class="price-inputs">
+                                    <input type="number" id="minPriceInput" placeholder="Min" class="form-control">
+                                    <span>-</span>
+                                    <input type="number" id="maxPriceInput" placeholder="Max" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="sortBySelect">Sort By</label>
+                                <select id="sortBySelect" class="form-control">
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Oldest</option>
+                                    <option value="title-az">Title A-Z</option>
+                                    <option value="title-za">Title Z-A</option>
+                                    <option value="price-low">Price Low to High</option>
+                                    <option value="price-high">Price High to Low</option>
+                                    <option value="stock-high">Highest Stock</option>
+                                    <option value="stock-low">Lowest Stock</option>
+                                    <option value="best-selling">Best Selling</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-actions">
+                                <button id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
+                                <button id="clearFiltersBtn" class="btn btn-secondary">Clear Filters</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Data Table Container -->
+                <div class="table-container">
+                    <div id="loadingSpinner" class="loading-state hidden">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <p>Loading books...</p>
+                    </div>
+
+                    <div id="emptyState" class="empty-state hidden">
+                        <i class="fa-solid fa-book-open"></i>
+                        <h3>No Books Found</h3>
+                        <p>Try changing your search or filters.</p>
+                        <button id="emptyStateClearBtn" class="btn btn-primary">Clear Filters</button>
+                    </div>
+
+                    <table class="data-table" id="booksTable">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Category</th>
+                                <th>ISBN</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Sales</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <!-- Table rows rendered dynamically via JavaScript -->
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <div class="pagination-wrapper">
+                        <span class="pagination-info" id="paginationInfo">Showing 0-0 of 0 books</span>
+                        <div class="pagination-controls" id="paginationControls">
+                            <!-- Pagination buttons rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Sections Grid (Low Stock & Out of Stock) -->
+                <div class="dashboard-widgets-grid">
+                    <!-- Low Stock Alert Section -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h3><i class="fa-solid fa-triangle-exclamation color-amber"></i> Low Stock Books</h3>
+                            <button id="manageLowStockBtn" class="btn btn-sm btn-outline">Manage Stock</button>
+                        </div>
+                        <ul class="stock-list" id="lowStockList">
+                            <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+
+                    <!-- Out of Stock Alert Section -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h3><i class="fa-solid fa-circle-xmark color-red"></i> Out of Stock</h3>
+                            <button id="viewOutOfStockBtn" class="btn btn-sm btn-outline">View Out of Stock Books</button>
+                        </div>
+                        <ul class="stock-list" id="outOfStockList">
+                            <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Quick View Details Modal -->
+    <div id="detailsModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <button class="modal-close" id="closeDetailsModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body" id="detailsModalBody">
+                <!-- Dynamically generated book details content -->
+            </div>
+            <div class="modal-footer">
+                <a id="modalEditBtn" href="#" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i> Edit Book</a>
+                <button class="btn btn-secondary" id="closeDetailsModalFooterBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this book?</p>
+                <h4 id="deleteBookTitle" class="delete-title"></h4>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Delete Book</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal-overlay hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Confirm Logout</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmLogoutBtn" class="btn btn-danger">Logout</button>
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant Widget -->
+    <div class="ai-assistant-wrapper">
+        <button id="aiToggleBtn" class="ai-fab">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div id="aiChatCard" class="ai-chat-card hidden">
+            <div class="ai-chat-header">
+                <div class="ai-brand">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>BookHaven AI Assistant</span>
+                </div>
+                <button id="closeAiBtn" class="icon-btn-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ai-chat-body" id="aiChatBody">
+                <div class="ai-message bot">
+                    Hi Manager! I can help you manage your bookstore.
+                </div>
+                <div class="ai-suggestions">
+                    <button class="ai-chip">Which books are low in stock?</button>
+                    <button class="ai-chip">Which books are out of stock?</button>
+                    <button class="ai-chip">What are the best-selling books?</button>
+                    <button class="ai-chip">Which books should I restock?</button>
+                    <button class="ai-chip">Show me programming books.</button>
+                    <button class="ai-chip">Which books have the highest sales?</button>
+                </div>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask AI something...">
+                <button id="sendAiBtn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="js/books.js"></script>
+</body>
+</html>

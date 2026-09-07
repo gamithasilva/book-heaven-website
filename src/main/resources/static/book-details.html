@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details - BookHaven</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/book-details_style.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Sticky Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html" class="active">Books</a>
+                    <a href="index.html#categories">Categories</a>
+                    <a href="index.html#about">About</a>
+                </nav>
+            </div>
+            
+            <div class="nav-right">
+                <button class="nav-icon-btn mobile-search-trigger" id="mobile-search-btn" title="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <a href="#" class="nav-icon-btn" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="#" class="nav-icon-btn" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-outline" id="login-btn">Login</a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="index.html">Home</a>
+            <a href="books.html" class="active">Books</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container main-content">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-container" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li><a href="index.html">Home</a></li>
+                <li><i class="fa-solid fa-chevron-right"></i></li>
+                <li><a href="books.html">Books</a></li>
+                <li><i class="fa-solid fa-chevron-right"></i></li>
+                <li class="active" id="breadcrumb-title">Book Details</li>
+            </ol>
+        </nav>
+
+        <!-- Skeleton Loading View -->
+        <div id="loading-state" class="skeleton-container">
+            <div class="skeleton-layout">
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-box skeleton-text title"></div>
+                    <div class="skeleton-box skeleton-text subtitle"></div>
+                    <div class="skeleton-box skeleton-text price"></div>
+                    <div class="skeleton-box skeleton-text block"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Not Found View -->
+        <div id="not-found-state" class="empty-state" style="display: none;">
+            <i class="fa-solid fa-book-skull empty-icon"></i>
+            <h2>Book Not Found</h2>
+            <p>The book you are looking for does not exist or has been removed.</p>
+            <a href="books.html" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i> Back to Books</a>
+        </div>
+
+        <!-- Main Detail Section -->
+        <div id="book-detail-content" style="display: none;">
+            <div class="product-layout">
+                <!-- Left Side: Cover Gallery -->
+                <div class="product-gallery">
+                    <div class="main-image-wrapper">
+                        <span class="card-badge" id="product-badge" style="display: none;"></span>
+                        <div class="zoom-container" id="zoom-container">
+                            <img id="main-book-cover" src="" alt="Book Cover">
+                        </div>
+                    </div>
+                    <div class="thumbnail-gallery" id="thumbnail-gallery">
+                        <!-- Thumbnails dynamically injected -->
+                    </div>
+                </div>
+
+                <!-- Right Side: Details & Purchase Actions -->
+                <div class="product-info">
+                    <h1 id="book-title"></h1>
+                    <p class="book-author">By <span id="book-author"></span></p>
+
+                    <div class="meta-row">
+                        <div class="card-rating">
+                            <span class="stars" id="book-stars"></span>
+                            <span class="rating-text" id="book-rating-num"></span>
+                            <a href="#tabs-section" class="review-link">(<span id="book-review-count"></span> reviews)</a>
+                        </div>
+                        <div class="meta-item">
+                            Category: <strong id="book-category"></strong>
+                        </div>
+                        <div class="meta-item">
+                            ISBN: <span id="book-isbn"></span>
+                        </div>
+                    </div>
+
+                    <div class="pricing-container">
+                        <span class="current-price" id="book-price"></span>
+                        <span class="original-price" id="book-original-price"></span>
+                        <span class="discount-badge" id="book-discount-badge" style="display: none;"></span>
+                    </div>
+
+                    <p class="short-description" id="book-short-desc"></p>
+
+                    <!-- Stock Info -->
+                    <div class="stock-info" id="stock-info-container"></div>
+
+                    <!-- Purchase Actions Control Box -->
+                    <div class="purchase-box">
+                        <div class="quantity-row">
+                            <label>Quantity:</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">-</button>
+                                <input type="number" id="qty-input" value="1" min="1" readonly>
+                                <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
+                            </div>
+                            <div class="subtotal-display">
+                                Subtotal: <strong id="subtotal-price">Rs. 0</strong>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons-row">
+                            <button class="btn btn-primary btn-lg" id="add-to-cart-btn">
+                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                            </button>
+                            <button class="btn btn-accent btn-lg" id="buy-now-btn">
+                                <i class="fa-solid fa-bolt"></i> Buy Now
+                            </button>
+                            <button class="wishlist-btn-icon" id="wishlist-toggle-btn" title="Add to Wishlist">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Share Section -->
+                    <div class="share-section">
+                        <span>Share this book:</span>
+                        <div class="share-buttons">
+                            <button class="share-btn" id="copy-link-btn" title="Copy Link">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                            <a href="#" class="share-btn facebook" id="share-facebook" target="_blank" title="Share on Facebook">
+                                <i class="fa-brands fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="share-btn whatsapp" id="share-whatsapp" target="_blank" title="Share on WhatsApp">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </a>
+                            <a href="#" class="share-btn twitter" id="share-twitter" target="_blank" title="Share on X">
+                                <i class="fa-brands fa-x-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Section -->
+            <section class="tabs-container" id="tabs-section">
+                <div class="tab-headers">
+                    <button class="tab-btn active" data-tab="tab-description">Description</button>
+                    <button class="tab-btn" data-tab="tab-details">Details</button>
+                    <button class="tab-btn" data-tab="tab-shipping">Shipping</button>
+                    <button class="tab-btn" data-tab="tab-reviews">Reviews (<span id="tab-review-count">0</span>)</button>
+                </div>
+
+                <div class="tab-content-wrapper">
+                    <!-- Tab 1: Description -->
+                    <div class="tab-content active" id="tab-description">
+                        <h3>Book Overview</h3>
+                        <p id="full-description-text"></p>
+                    </div>
+
+                    <!-- Tab 2: Details -->
+                    <div class="tab-content" id="tab-details">
+                        <h3>Technical Specifications</h3>
+                        <table class="details-table">
+                            <tbody>
+                                <tr><th>Title</th><td id="table-title"></td></tr>
+                                <tr><th>Author</th><td id="table-author"></td></tr>
+                                <tr><th>ISBN</th><td id="table-isbn"></td></tr>
+                                <tr><th>Publisher</th><td id="table-publisher"></td></tr>
+                                <tr><th>Publication Date</th><td id="table-pub-date"></td></tr>
+                                <tr><th>Pages</th><td id="table-pages"></td></tr>
+                                <tr><th>Language</th><td id="table-language"></td></tr>
+                                <tr><th>Category</th><td id="table-category"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tab 3: Shipping -->
+                    <div class="tab-content" id="tab-shipping">
+                        <h3>Shipping & Delivery Information</h3>
+                        <div class="shipping-info-grid">
+                            <div class="shipping-card">
+                                <i class="fa-solid fa-truck-fast"></i>
+                                <h4>Standard Delivery</h4>
+                                <p>Estimated delivery: 2–5 business days islandwide.</p>
+                            </div>
+                            <div class="shipping-card">
+                                <i class="fa-solid fa-gift"></i>
+                                <h4>Free Shipping Offer</h4>
+                                <p>Free delivery for orders above Rs. 10,000.</p>
+                            </div>
+                            <div class="shipping-card">
+                                <i class="fa-solid fa-rotate-left"></i>
+                                <h4>Easy Returns</h4>
+                                <p>7-day hassle-free return policy for damaged or incorrect items.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Reviews -->
+                    <div class="tab-content" id="tab-reviews">
+                        <div class="reviews-summary-grid">
+                            <div class="rating-score-box">
+                                <div class="huge-score" id="summary-score">0.0</div>
+                                <div class="stars" id="summary-stars"></div>
+                                <p class="total-reviews-text"><span id="summary-total-count">0</span> Ratings & Reviews</p>
+                            </div>
+
+                            <div class="rating-breakdown" id="rating-breakdown-container">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- Review Form / Login Prompt -->
+                        <div class="write-review-container">
+                            <div id="user-review-form" style="display: none;">
+                                <h4>Write a Customer Review</h4>
+                                <form id="review-form">
+                                    <div class="form-group">
+                                        <label>Your Rating:</label>
+                                        <div class="star-rating-input">
+                                            <input type="radio" id="star5" name="userRating" value="5" required/><label for="star5" title="5 stars"><i class="fa-solid fa-star"></i></label>
+                                            <input type="radio" id="star4" name="userRating" value="4"/><label for="star4" title="4 stars"><i class="fa-solid fa-star"></i></label>
+                                            <input type="radio" id="star3" name="userRating" value="3"/><label for="star3" title="3 stars"><i class="fa-solid fa-star"></i></label>
+                                            <input type="radio" id="star2" name="userRating" value="2"/><label for="star2" title="2 stars"><i class="fa-solid fa-star"></i></label>
+                                            <input type="radio" id="star1" name="userRating" value="1"/><label for="star1" title="1 star"><i class="fa-solid fa-star"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-comment">Your Review:</label>
+                                        <textarea id="review-comment" rows="4" placeholder="Share details of your experience with this book..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                </form>
+                            </div>
+
+                            <div id="guest-review-prompt" class="guest-prompt">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>Please login to write a review.</span>
+                                <button class="btn btn-outline btn-sm" id="prompt-login-btn">Login</button>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- Customer Reviews List -->
+                        <div class="reviews-list" id="reviews-list-container">
+                            <!-- Dynamically Injected -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Related Books Section -->
+            <section class="related-section">
+                <h2>You May Also Like</h2>
+                <div class="book-grid" id="related-books-grid">
+                    <!-- Related cards injected via JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Floating AI Assistant -->
+    <div class="ai-widget-container">
+        <button class="ai-trigger-btn" id="ai-trigger-btn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-popup" id="ai-chat-popup" style="display: none;">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small id="ai-context-label">Context: Current Book</small>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-close-btn">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-message bot-message">
+                    Hi! I'm your BookHaven AI Assistant. I can help you understand this book or find similar recommendations!
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <button class="ai-suggestion-chip">Is this book good for beginners?</button>
+                    <button class="ai-suggestion-chip">Recommend similar books</button>
+                    <button class="ai-suggestion-chip">Find cheaper alternatives</button>
+                    <button class="ai-suggestion-chip">What books are similar to this?</button>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-input" placeholder="Ask anything about this book...">
+                <button id="ai-send-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier destination for online literature browsing and purchasing. Quality books delivered directly to your doorstep.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="index.html#categories">Categories</a></li>
+                    <li><a href="index.html#about">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/book-details.js"></script>
+</body>
+</html>

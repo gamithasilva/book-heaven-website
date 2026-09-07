@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard - BookHaven</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Dashboard Styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+    <div class="app-layout">
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <div class="brand-info">
+                    <h2>BookHaven</h2>
+                    <span>Manager Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">MAIN MENU</div>
+                <a href="dashboard.html" class="nav-item active">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-section-title">SYSTEM</div>
+                <a href="profile.html" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="btn-sidebar-logout" class="btn-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Overlay for Mobile Sidebar -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- ==================== MAIN CONTENT AREA ==================== -->
+        <div class="main-wrapper">
+            
+            <!-- TOP BAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search orders, books, customers...">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Dark/Light Theme Toggle -->
+                    <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <!-- Notifications Dropdown Container -->
+                    <div class="dropdown-wrapper">
+                        <button id="notification-btn" class="icon-btn" title="Notifications">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="badge" id="notif-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu notification-dropdown" id="notification-dropdown">
+                            <div class="dropdown-header">
+                                <h3>Notifications</h3>
+                                <button id="mark-read-btn" class="text-btn">Mark all as read</button>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manager Profile Menu -->
+                    <div class="dropdown-wrapper">
+                        <button id="profile-dropdown-btn" class="profile-menu-btn">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Manager Avatar" class="avatar">
+                            <div class="profile-info">
+                                <span class="profile-name">Manager</span>
+                                <span class="profile-role">Store Admin</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu profile-dropdown" id="profile-dropdown">
+                            <a href="profile.html"><i class="fa-regular fa-user"></i> Profile</a>
+                            <a href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+                            <hr>
+                            <a href="#" id="dropdown-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD VIEW BODY -->
+            <main class="content-body">
+                
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p>Welcome back, Manager. Here's what's happening with BookHaven today.</p>
+                    </div>
+                    <a href="book-form.html" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> Add New Book
+                    </a>
+                </div>
+
+                <!-- LOW STOCK PROMINENT ALERT BANNER -->
+                <div class="alert-banner warning-banner hidden" id="low-stock-alert">
+                    <div class="alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="alert-content">
+                        <h4>Low Stock Alert</h4>
+                        <p><span id="alert-low-count">12</span> books are currently below the minimum stock threshold.</p>
+                    </div>
+                    <a href="books.html" class="btn-alert">Review Stock</a>
+                </div>
+
+                <!-- STATISTICS CARDS -->
+                <div class="stats-grid" id="stats-container">
+                    <!-- Card 1 -->
+                    <div class="stat-card skeleton-loading">
+                        <div class="stat-icon icon-blue"><i class="fa-solid fa-book"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Books</span>
+                            <h3 class="stat-value" id="stat-books">--</h3>
+                            <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-up"></i> +12 this month</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="stat-card skeleton-loading">
+                        <div class="stat-icon icon-green"><i class="fa-solid fa-box"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Orders</span>
+                            <h3 class="stat-value" id="stat-orders">--</h3>
+                            <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-up"></i> +18% this month</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="stat-card skeleton-loading">
+                        <div class="stat-icon icon-purple"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-label">Customers</span>
+                            <h3 class="stat-value" id="stat-customers">--</h3>
+                            <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-up"></i> +8% this month</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="stat-card skeleton-loading">
+                        <div class="stat-icon icon-amber"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Revenue</span>
+                            <h3 class="stat-value" id="stat-revenue">--</h3>
+                            <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-up"></i> +15% this month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIDDLE SECTION: CHARTS & OVERVIEWS -->
+                <div class="dashboard-grid">
+                    
+                    <!-- Sales Chart Box -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>Sales Overview</h3>
+                                <span class="card-subtitle">Revenue metrics over time</span>
+                            </div>
+                            <select id="sales-period" class="select-sm">
+                                <option value="today">Today</option>
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                        <div class="chart-body">
+                            <!-- Custom HTML5 / CSS Bar Canvas -->
+                            <div class="custom-bar-chart" id="sales-chart">
+                                <!-- Rendered dynamically by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Overview / Low Stock Warning Side Box -->
+                    <div class="dashboard-side-column">
+                        
+                        <!-- Order Status Breakdown -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Order Overview</h3>
+                                <a href="orders.html" class="link-btn">View All</a>
+                            </div>
+                            <div class="order-status-list" id="order-status-container">
+                                <!-- Dynamic Render -->
+                            </div>
+                        </div>
+
+                        <!-- Low Stock Warning Quick Card -->
+                        <div class="card warning-card">
+                            <div class="card-header">
+                                <div class="header-with-icon">
+                                    <i class="fa-solid fa-triangle-exclamation color-warning"></i>
+                                    <h3>Low Stock Books</h3>
+                                </div>
+                                <a href="books.html" class="link-btn">View Low Stock</a>
+                            </div>
+                            <p class="card-description">12 books are running low on stock.</p>
+                            <ul class="low-stock-list" id="low-stock-items">
+                                <!-- Dynamic Render -->
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- BOTTOM SECTION: TABLES & ACTIVITY -->
+                <div class="dashboard-grid bottom-grid">
+                    
+                    <!-- Recent Orders Table -->
+                    <div class="card table-card grid-col-span-2">
+                        <div class="card-header">
+                            <h3>Recent Orders</h3>
+                            <a href="orders.html" class="btn-secondary-sm">View All Orders</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders-body">
+                                    <!-- Dynamic Render -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Selling Books -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Top Selling Books</h3>
+                            <a href="books.html" class="link-btn">Manage Books</a>
+                        </div>
+                        <div class="top-books-list" id="top-selling-books">
+                            <!-- Dynamic Render -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- AUXILIARY ROW: CUSTOMERS & QUICK ACTIONS -->
+                <div class="dashboard-grid bottom-grid">
+                    
+                    <!-- Recent Customers -->
+                    <div class="card grid-col-span-2">
+                        <div class="card-header">
+                            <h3>Recent Customers</h3>
+                            <a href="customers.html" class="btn-secondary-sm">View Customers</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Email</th>
+                                        <th>Joined Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-customers-body">
+                                    <!-- Dynamic Render -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Widget -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <a href="book-form.html" class="quick-action-btn primary">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add New Book</span>
+                            </a>
+                            <a href="books.html" class="quick-action-btn">
+                                <i class="fa-solid fa-book"></i>
+                                <span>Manage Books</span>
+                            </a>
+                            <a href="orders.html" class="quick-action-btn">
+                                <i class="fa-solid fa-box"></i>
+                                <span>Manage Orders</span>
+                            </a>
+                            <a href="customers.html" class="quick-action-btn">
+                                <i class="fa-solid fa-users"></i>
+                                <span>View Customers</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==================== FLOATING BOOKHAVEN AI ASSISTANT ==================== -->
+    <div class="ai-widget-wrapper">
+        <button id="ai-toggle-btn" class="ai-fab-btn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-window hidden" id="ai-chat-window">
+            <div class="ai-chat-header">
+                <div class="ai-brand">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <span>Manager Assistant</span>
+                    </div>
+                </div>
+                <button id="ai-close-btn" class="icon-btn-light"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="chat-bubble ai-bubble">
+                    Hi Manager! I can help you analyze your bookstore.
+                </div>
+                <div class="suggested-prompts">
+                    <p>Suggested Questions:</p>
+                    <button class="ai-prompt-chip">How many books are low in stock?</button>
+                    <button class="ai-prompt-chip">What are today's sales?</button>
+                    <button class="ai-prompt-chip">What are the best-selling books?</button>
+                    <button class="ai-prompt-chip">How many orders are pending?</button>
+                    <button class="ai-prompt-chip">Which books should be restocked?</button>
+                    <button class="ai-prompt-chip">Give me a sales summary.</button>
+                </div>
+            </div>
+
+            <div class="ai-chat-footer">
+                <input type="text" id="ai-input" placeholder="Ask about sales, stock, orders...">
+                <button id="ai-send-btn" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT CONFIRMATION MODAL -->
+    <div id="logout-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-icon warning"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+                <h3>Confirm Logout</h3>
+                <button class="modal-close-btn" id="logout-cancel-x">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout of the BookHaven Manager Portal?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="logout-cancel-btn">Cancel</button>
+                <button class="btn-danger" id="logout-confirm-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - BookHaven Manager</title>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/profile.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <div class="brand-details">
+                    <span class="brand-name">BookHaven</span>
+                    <span class="brand-portal">Manager Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="profile.html" class="nav-item active">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="#" class="nav-item text-danger" id="logoutBtn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="icon-btn" id="sidebarToggle" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="top-bar-right">
+                    <button class="icon-btn theme-toggle" id="themeToggle" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="notification-wrapper">
+                        <button class="icon-btn" title="Notifications">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="badge-dot"></span>
+                        </button>
+                    </div>
+                    <div class="user-profile-menu">
+                        <img src="https://ui-avatars.com/api/?name=Manager+BookHaven&background=4f46e5&color=fff" alt="Manager Avatar" class="top-avatar" id="topNavAvatar">
+                        <span class="user-name" id="topNavManagerName">Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Body Container -->
+            <div class="content-body">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">My Profile</h1>
+                        <p class="page-subtitle">Manage your BookHaven Manager account information.</p>
+                    </div>
+                </div>
+
+                <!-- Profile Header Banner Card -->
+                <section class="profile-header-card">
+                    <div class="avatar-wrapper">
+                        <img src="https://ui-avatars.com/api/?name=Manager+BookHaven&background=4f46e5&color=fff" alt="Profile Picture" id="profileHeaderAvatar" class="profile-avatar">
+                        <input type="file" id="photoInput" accept="image/jpeg,image/jpg,image/png,image/webp" class="hidden">
+                        <button class="btn btn-secondary btn-sm" id="btnChangePhoto">
+                            <i class="fa-solid fa-camera"></i> Change Photo
+                        </button>
+                    </div>
+                    <div class="profile-header-details">
+                        <h2 id="headerFullName">Manager BookHaven</h2>
+                        <span class="role-badge">MANAGER</span>
+                        <p id="headerEmail" class="text-muted"><i class="fa-solid fa-envelope"></i> manager@bookhaven.com</p>
+                    </div>
+                </section>
+
+                <!-- Two-Column Profile Workspace -->
+                <div class="profile-grid-container">
+                    <!-- Left Column: Forms & Controls -->
+                    <div class="profile-column-main">
+                        <!-- Personal Information Form Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-user-pen"></i> Personal Information</span>
+                                <button class="btn btn-primary btn-sm" id="btnEditProfile">
+                                    <i class="fa-solid fa-pen"></i> Edit Profile
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <form id="personalInfoForm" novalidate>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="firstName">First Name <span class="required">*</span></label>
+                                            <input type="text" id="firstName" class="form-control" value="Manager" disabled>
+                                            <span class="error-msg" id="errFirstName"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lastName">Last Name <span class="required">*</span></label>
+                                            <input type="text" id="lastName" class="form-control" value="BookHaven" disabled>
+                                            <span class="error-msg" id="errLastName"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="email">Email <span class="required">*</span></label>
+                                            <input type="email" id="email" class="form-control" value="manager@bookhaven.com" disabled>
+                                            <small class="help-text">Email cannot be changed here.</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="phone">Phone</label>
+                                            <input type="text" id="phone" class="form-control" value="0771234567" disabled>
+                                            <span class="error-msg" id="errPhone"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="dob">Date of Birth</label>
+                                            <input type="date" id="dob" class="form-control" value="1995-05-10" disabled>
+                                            <span class="error-msg" id="errDob"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions hidden" id="personalInfoActions">
+                                        <button type="button" class="btn btn-secondary" id="btnCancelEdit">Cancel</button>
+                                        <button type="submit" class="btn btn-primary" id="btnSaveProfile">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+
+                        <!-- Change Password Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-lock"></i> Change Password</span>
+                            </div>
+                            <div class="card-body">
+                                <form id="changePasswordForm" novalidate>
+                                    <div class="form-group">
+                                        <label for="currentPassword">Current Password <span class="required">*</span></label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                                            <button type="button" class="btn-toggle-pw"><i class="fa-solid fa-eye"></i></button>
+                                        </div>
+                                        <span class="error-msg" id="errCurrentPassword"></span>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="newPassword">New Password <span class="required">*</span></label>
+                                            <div class="password-input-wrapper">
+                                                <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                                                <button type="button" class="btn-toggle-pw"><i class="fa-solid fa-eye"></i></button>
+                                            </div>
+                                            <!-- Password Strength Bar -->
+                                            <div class="strength-meter hidden" id="strengthMeter">
+                                                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                                                <span class="strength-text" id="strengthText">Weak</span>
+                                            </div>
+                                            <span class="error-msg" id="errNewPassword"></span>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirm New Password <span class="required">*</span></label>
+                                            <div class="password-input-wrapper">
+                                                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
+                                                <button type="button" class="btn-toggle-pw"><i class="fa-solid fa-eye"></i></button>
+                                            </div>
+                                            <span class="error-msg" id="errConfirmPassword"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary" id="btnSubmitPassword">Change Password</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column: Info, Stats, Security & Danger Zone -->
+                    <div class="profile-column-sidebar">
+                        <!-- Account Information Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-id-card"></i> Account Information</span>
+                            </div>
+                            <div class="card-body">
+                                <ul class="info-list">
+                                    <li>
+                                        <span class="info-label">Account ID</span>
+                                        <span class="info-val font-mono" id="accId">MGR-001</span>
+                                    </li>
+                                    <li>
+                                        <span class="info-label">Role</span>
+                                        <span class="role-badge">MANAGER</span>
+                                    </li>
+                                    <li>
+                                        <span class="info-label">Account Status</span>
+                                        <span class="status-badge active"><i class="fa-solid fa-circle-check"></i> ACTIVE</span>
+                                    </li>
+                                    <li>
+                                        <span class="info-label">Created Date</span>
+                                        <span class="info-val" id="accCreated">January 10, 2026</span>
+                                    </li>
+                                    <li>
+                                        <span class="info-label">Last Login</span>
+                                        <span class="info-val" id="accLastLogin">August 24, 2026</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+
+                        <!-- Activity Summary Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Activity Summary</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="activity-stats-grid">
+                                    <div class="mini-stat-card">
+                                        <span class="stat-num" id="statBooksAdded">0</span>
+                                        <span class="stat-lbl">Books Added</span>
+                                    </div>
+                                    <div class="mini-stat-card">
+                                        <span class="stat-num" id="statBooksUpdated">0</span>
+                                        <span class="stat-lbl">Books Updated</span>
+                                    </div>
+                                    <div class="mini-stat-card">
+                                        <span class="stat-num" id="statOrdersProcessed">0</span>
+                                        <span class="stat-lbl">Orders Processed</span>
+                                    </div>
+                                    <div class="mini-stat-card">
+                                        <span class="stat-num" id="statCustomersViewed">0</span>
+                                        <span class="stat-lbl">Customers Viewed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Recent Activity Timeline Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline" id="activityTimeline">
+                                    <!-- Dynamic Activity Items Rendered Here -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Login Security Card -->
+                        <section class="card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-shield-halved"></i> Security</span>
+                            </div>
+                            <div class="card-body">
+                                <ul class="info-list">
+                                    <li>
+                                        <span class="info-label">Last Login</span>
+                                        <span class="info-val">August 24, 2026 08:42 PM</span>
+                                    </li>
+                                    <li>
+                                        <span class="info-label">Device</span>
+                                        <span class="info-val">Windows / Chrome</span>
+                                    </li>
+                                </ul>
+                                <button class="btn btn-secondary btn-full margin-top-md" id="btnLogoutAllDevices">
+                                    <i class="fa-solid fa-power-off"></i> Logout From All Devices
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Danger Zone Card -->
+                        <section class="card danger-card">
+                            <div class="card-header">
+                                <span class="card-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="danger-box">
+                                    <div>
+                                        <strong>Logout</strong>
+                                        <p class="text-muted text-xs">Sign out from your current Manager session.</p>
+                                    </div>
+                                    <button class="btn btn-danger btn-sm" id="btnDangerLogout">Logout</button>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div class="modal-backdrop hidden" id="confirmModal">
+        <div class="modal-container modal-sm">
+            <div class="modal-header">
+                <h3 id="confirmModalTitle">Confirm Action</h3>
+                <button class="modal-close" id="btnCloseConfirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelConfirm">Cancel</button>
+                <button class="btn btn-primary" id="btnExecuteConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Floating Widget -->
+    <div class="ai-widget">
+        <button class="ai-trigger-btn" id="aiTriggerBtn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div class="ai-chat-window hidden" id="aiChatWindow">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>BookHaven Assistant</span>
+                </div>
+                <button class="ai-chat-close" id="btnAiClose">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="aiChatMessages">
+                <div class="ai-msg ai-msg-bot">
+                    Hi Manager! How can I help you?
+                </div>
+            </div>
+            <div class="ai-chat-suggestions">
+                <span class="suggestion-chip" data-query="Show today's sales.">Today's sales?</span>
+                <span class="suggestion-chip" data-query="How many orders are pending?">Pending orders?</span>
+                <span class="suggestion-chip" data-query="Which books are low in stock?">Low stock?</span>
+                <span class="suggestion-chip" data-query="Show my recent activity.">My activity?</span>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask a question...">
+                <button id="btnAiSend"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom JS -->
+    <script src="js/profile.js"></script>
+</body>
+</html>

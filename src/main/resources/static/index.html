@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven | Find Your Next Great Read</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Action successful!</span>
+    </div>
+
+    <header class="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-book-open"></i>
+                <span>BookHaven</span>
+            </a>
+
+            <div class="search-bar-container" id="search-bar">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search books by title, author...">
+                <button id="close-search" class="icon-btn" aria-label="Close search"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <nav class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="books.html" class="nav-link">Books</a></li>
+                    <li><a href="#categories" class="nav-link">Categories</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="icon-btn" id="search-toggle" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <a href="profile.html#wishlist-grid" class="icon-btn badge-btn" id="wishlist-btn" aria-label="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="icon-btn badge-btn" id="cart-btn" aria-label="Cart">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-outline btn-sm" id="login-btn">Login</a>
+                    <a href="login.html" class="btn btn-primary btn-sm" id="register-btn">Register</a>
+                    <a href="login.html" class="btn btn-outline btn-sm hidden" id="logout-btn">Logout</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <span class="promo-badge"><i class="fa-solid fa-sparkles"></i> New Books Every Week</span>
+                    <h1 class="hero-title">Find Your Next Great Read</h1>
+                    <p class="hero-description">
+                        Discover thousands of books, explore new worlds, and find stories that stay with you. Enjoy seamless shopping with nationwide delivery.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="books.html" class="btn btn-primary">Shop Books <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="#categories" class="btn btn-secondary">Explore Categories</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper">
+                    <div class="hero-card">
+                        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80" alt="Collection of books" class="hero-img">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section categories-section" id="categories">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Explore Categories</h2>
+                    <p class="section-subtitle">Find your favorite genres and explore our curation.</p>
+                </div>
+                <div class="category-grid">
+                    <div class="category-card" data-category="fiction">
+                        <div class="category-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <h3>Fiction</h3>
+                        <p>1,240 Books</p>
+                    </div>
+                    <div class="category-card" data-category="fantasy">
+                        <div class="category-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <h3>Fantasy</h3>
+                        <p>850 Books</p>
+                    </div>
+                    <div class="category-card" data-category="romance">
+                        <div class="category-icon"><i class="fa-solid fa-heart"></i></div>
+                        <h3>Romance</h3>
+                        <p>920 Books</p>
+                    </div>
+                    <div class="category-card" data-category="science-fiction">
+                        <div class="category-icon"><i class="fa-solid fa-user-astronaut"></i></div>
+                        <h3>Science Fiction</h3>
+                        <p>640 Books</p>
+                    </div>
+                    <div class="category-card" data-category="programming">
+                        <div class="category-icon"><i class="fa-solid fa-code"></i></div>
+                        <h3>Programming</h3>
+                        <p>410 Books</p>
+                    </div>
+                    <div class="category-card" data-category="business">
+                        <div class="category-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        <h3>Business</h3>
+                        <p>530 Books</p>
+                    </div>
+                    <div class="category-card" data-category="biography">
+                        <div class="category-icon"><i class="fa-solid fa-user-pen"></i></div>
+                        <h3>Biography</h3>
+                        <p>310 Books</p>
+                    </div>
+                    <div class="category-card" data-category="history">
+                        <div class="category-icon"><i class="fa-solid fa-landmark"></i></div>
+                        <h3>History</h3>
+                        <p>480 Books</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section books-section" id="books">
+            <div class="container">
+                <div class="section-header flex-header">
+                    <div>
+                        <h2 class="section-title">Featured Books</h2>
+                        <p class="section-subtitle">Hand-picked titles recommended by our editors.</p>
+                    </div>
+                    <a href="books.html" class="btn-link">View All Books <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="book-grid" id="book-grid">
+                    </div>
+            </div>
+        </section>
+
+        <section class="offer-section">
+            <div class="container offer-container">
+                <div class="offer-content">
+                    <span class="offer-tag">Limited Time Offer</span>
+                    <h2>Weekend Book Sale</h2>
+                    <p>Save up to 30% on selected bestsellers and classics. Grab your favorites before time runs out!</p>
+                    <div class="timer" id="countdown-timer">
+                        <div class="timer-box"><span id="days">02</span><small>Days</small></div>
+                        <div class="timer-box"><span id="hours">12</span><small>Hours</small></div>
+                        <div class="timer-box"><span id="minutes">35</span><small>Minutes</small></div>
+                        <div class="timer-box"><span id="seconds">20</span><small>Seconds</small></div>
+                    </div>
+                    <a href="books.html" class="btn btn-accent btn-lg">Shop Now <i class="fa-solid fa-bag-shopping"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section features-section" id="about">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Why Choose BookHaven?</h2>
+                    <p class="section-subtitle">We bring the best reading experience to your doorstep.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3>Wide Collection</h3>
+                        <p>Thousands of books across vast genres and niche categories ready for dispatch.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h3>Secure Shopping</h3>
+                        <p>100% safe and secure payment processes protecting your transactional privacy.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                        <h3>Fast Delivery</h3>
+                        <p>Quick doorstep shipment services across all regions in Sri Lanka.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+                        <h3>AI Book Assistant</h3>
+                        <p>Instant personalized reading recommendations tailored to your unique interests.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-card">
+                    <div class="newsletter-content">
+                        <h2>Stay Updated With BookHaven</h2>
+                        <p>Get new book arrivals, recommendations, and special offers directly in your inbox.</p>
+                    </div>
+                    <form id="newsletter-form" class="newsletter-form" novalidate>
+                        <div class="input-group">
+                            <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
+                            <button type="submit" class="btn btn-primary">Subscribe</button>
+                        </div>
+                        <span class="error-msg" id="email-error">Please enter a valid email address.</span>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="ai-widget">
+        <button id="ai-toggle-btn" class="ai-fab-btn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div id="ai-chat-popup" class="ai-chat-popup hidden">
+            <div class="ai-chat-header">
+                <div class="ai-profile">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h3>BookHaven AI</h3>
+                        <span class="status-indicator">Online</span>
+                    </div>
+                </div>
+                <button id="close-chat" class="icon-btn-light"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ai-chat-body" id="chat-body">
+                <div class="chat-message bot">
+                    <p>Hi! I'm your BookHaven AI Assistant. What kind of book are you looking for?</p>
+                </div>
+                <div class="ai-suggestions">
+                    <button class="chip-btn" data-query="Recommend a fantasy book">Recommend fantasy</button>
+                    <button class="chip-btn" data-query="Books under Rs. 3000">Under Rs. 3000</button>
+                    <button class="chip-btn" data-query="Best programming books">Programming books</button>
+                    <button class="chip-btn" data-query="Books similar to Harry Potter">Similar to Harry Potter</button>
+                </div>
+            </div>
+            <div class="ai-chat-footer">
+                <form id="ai-chat-form">
+                    <input type="text" id="ai-input" placeholder="Ask about books..." autocomplete="off">
+                    <button type="submit" id="send-ai-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo footer-logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your ultimate destination for discovering stories, acquiring knowledge, and exploring literary works across all genres.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="#categories">Categories</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Shopping Cart</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container copyright-text">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

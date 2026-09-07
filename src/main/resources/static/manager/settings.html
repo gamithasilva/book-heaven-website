@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Settings - BookHaven</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-bookmark logo-icon"></i>
+                <div class="logo-text">
+                    <h2>BookHaven</h2>
+                    <span>Manager Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a href="books.html"><i class="fa-solid fa-book"></i> <span>Books</span></a>
+                    </li>
+                    <li>
+                        <a href="orders.html"><i class="fa-solid fa-box"></i> <span>Orders</span></a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fa-solid fa-users"></i> <span>Customers</span></a>
+                    </li>
+                </ul>
+
+                <div class="nav-divider"></div>
+
+                <ul>
+                    <li>
+                        <a href="profile.html"><i class="fa-solid fa-user-gear"></i> <span>Profile</span></a>
+                    </li>
+                    <li class="active">
+                        <a href="settings.html"><i class="fa-solid fa-gear"></i> <span>Settings</span></a>
+                    </li>
+                </ul>
+
+                <div class="nav-divider"></div>
+
+                <ul>
+                    <li>
+                        <a href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggle" class="icon-btn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                
+                <div class="topbar-right">
+                    <button class="icon-btn theme-toggle-btn" id="quickThemeToggle" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    
+                    <div class="notification-wrapper">
+                        <button class="icon-btn" id="notifBtn">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="badge"></span>
+                        </button>
+                    </div>
+
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Manager+User&background=4f46e5&color=fff" alt="Manager Avatar" class="avatar">
+                        <div class="user-info">
+                            <span class="user-name">Manager</span>
+                            <span class="user-role">Administrator</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Scrollable Content -->
+            <main class="content-body">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Settings</h1>
+                        <p>Manage your BookHaven Manager preferences.</p>
+                    </div>
+                    <div class="save-status-indicator" id="topSaveIndicator">
+                        <i class="fa-solid fa-circle-check"></i> <span>All changes saved</span>
+                    </div>
+                </div>
+
+                <!-- Settings Layout Structure -->
+                <div class="settings-container">
+                    <!-- Navigation Sidebar / Tabs -->
+                    <aside class="settings-nav-wrapper">
+                        <nav class="settings-nav" id="settingsNav">
+                            <a href="#general" class="nav-item active"><i class="fa-solid fa-sliders"></i> General</a>
+                            <a href="#appearance" class="nav-item"><i class="fa-solid fa-palette"></i> Appearance</a>
+                            <a href="#notifications" class="nav-item"><i class="fa-solid fa-bell"></i> Notifications</a>
+                            <a href="#inventory" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+                            <a href="#dashboard" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
+                            <a href="#ai" class="nav-item"><i class="fa-solid fa-robot"></i> AI Assistant</a>
+                            <a href="#security" class="nav-item"><i class="fa-solid fa-shield-halved"></i> Security</a>
+                        </nav>
+                    </aside>
+
+                    <!-- Settings Sections Container -->
+                    <div class="settings-content">
+                        
+                        <!-- 1. General Settings -->
+                        <section id="general" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-sliders"></i> General Settings</h2>
+                            </div>
+                            <form id="generalForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="languageSelect">Language</label>
+                                    <select id="languageSelect" class="form-control">
+                                        <option value="en">English</option>
+                                        <option value="si">Sinhala</option>
+                                        <option value="ta">Tamil</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="currencySelect">Currency</label>
+                                    <input type="text" id="currencySelect" class="form-control" value="LKR — Sri Lankan Rupee" readonly>
+                                    <small class="form-text">BookHaven operates exclusively in LKR.</small>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="dateFormatSelect">Date Format</label>
+                                        <select id="dateFormatSelect" class="form-control">
+                                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-6">
+                                        <label for="timeFormatSelect">Time Format</label>
+                                        <select id="timeFormatSelect" class="form-control">
+                                            <option value="12H">12 Hour</option>
+                                            <option value="24H">24 Hour</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="timezoneSelect">Timezone</label>
+                                    <select id="timezoneSelect" class="form-control">
+                                        <option value="Asia/Colombo">Asia/Colombo (Sri Lanka Standard Time)</option>
+                                    </select>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 2. Appearance Settings -->
+                        <section id="appearance" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-palette"></i> Appearance</h2>
+                            </div>
+                            <form id="appearanceForm" class="settings-form">
+                                <div class="form-group">
+                                    <label>Theme Selection</label>
+                                    <div class="theme-options">
+                                        <label class="theme-card">
+                                            <input type="radio" name="themeRadio" value="light">
+                                            <div class="theme-card-body">
+                                                <i class="fa-solid fa-sun"></i>
+                                                <span>Light</span>
+                                            </div>
+                                        </label>
+                                        <label class="theme-card">
+                                            <input type="radio" name="themeRadio" value="dark">
+                                            <div class="theme-card-body">
+                                                <i class="fa-solid fa-moon"></i>
+                                                <span>Dark</span>
+                                            </div>
+                                        </label>
+                                        <label class="theme-card">
+                                            <input type="radio" name="themeRadio" value="system">
+                                            <div class="theme-card-body">
+                                                <i class="fa-solid fa-desktop"></i>
+                                                <span>System Default</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sidebarStateSelect">Sidebar Default State</label>
+                                    <select id="sidebarStateSelect" class="form-control">
+                                        <option value="expanded">Expanded</option>
+                                        <option value="collapsed">Collapsed</option>
+                                    </select>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Appearance</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 3. Notification Settings -->
+                        <section id="notifications" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-bell"></i> Notification Preferences</h2>
+                            </div>
+                            <form id="notificationsForm" class="settings-form">
+                                <div class="toggle-list">
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">🔔 New Order Notifications</span>
+                                            <span class="toggle-desc">Notify me when a new customer order is placed.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifNewOrders">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">📦 Order Status Notifications</span>
+                                            <span class="toggle-desc">Notify me when an order status changes.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifOrderStatus">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">📚 Low Stock Alerts</span>
+                                            <span class="toggle-desc">Notify me when books reach low stock threshold.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifLowStock">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">🚫 Out of Stock Alerts</span>
+                                            <span class="toggle-desc">Notify me when a book becomes completely out of stock.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifOutOfStock">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">👥 New Customer Notifications</span>
+                                            <span class="toggle-desc">Notify me when a new customer registers an account.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifNewCustomers">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">🤖 AI Notifications</span>
+                                            <span class="toggle-desc">Allow BookHaven AI to provide proactive management alerts.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="notifAi">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Notification Settings</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 4. Low Stock / Inventory Settings -->
+                        <section id="inventory" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-boxes-stacked"></i> Inventory Alerts</h2>
+                            </div>
+                            <form id="inventoryForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="lowStockThresholdInput">Low Stock Threshold</label>
+                                    <div class="input-hint-wrapper">
+                                        <input type="number" id="lowStockThresholdInput" class="form-control" min="1" max="100" step="1">
+                                    </div>
+                                    <small class="form-text">Notify me when book stock reaches or falls below this amount (Range: 1 - 100).</small>
+                                </div>
+
+                                <div class="toggle-item">
+                                    <div class="toggle-info">
+                                        <span class="toggle-title">Enable Low Stock Alerts</span>
+                                        <span class="toggle-desc">Turn inventory warnings on or off globally.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableLowStockAlerts">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Inventory Settings</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 5. Dashboard Settings -->
+                        <section id="dashboard" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-chart-simple"></i> Dashboard Preferences</h2>
+                            </div>
+                            <form id="dashboardForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="dashPeriodSelect">Default Dashboard Period</label>
+                                    <select id="dashPeriodSelect" class="form-control">
+                                        <option value="today">Today</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                        <option value="year">This Year</option>
+                                    </select>
+                                </div>
+
+                                <div class="toggle-list">
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">Show Sales Chart</span>
+                                            <span class="toggle-desc">Display interactive revenue and sales graphs.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="dashSalesChart">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">Show Recent Orders</span>
+                                            <span class="toggle-desc">Display recent transaction history table.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="dashRecentOrders">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">Show Low Stock Books</span>
+                                            <span class="toggle-desc">Display warning panel for inventory shortfalls.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="dashLowStockBooks">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">Show Recent Customers</span>
+                                            <span class="toggle-desc">Display stream of newly registered user profiles.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="dashRecentCustomers">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="toggle-item">
+                                        <div class="toggle-info">
+                                            <span class="toggle-title">Show Top Selling Books</span>
+                                            <span class="toggle-desc">Display metrics for best-performing catalog items.</span>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="dashTopSellingBooks">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Dashboard Settings</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 6. AI Assistant Settings -->
+                        <section id="ai" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-robot"></i> BookHaven AI Assistant</h2>
+                            </div>
+                            <form id="aiForm" class="settings-form">
+                                <div class="toggle-item">
+                                    <div class="toggle-info">
+                                        <span class="toggle-title">Enable AI Assistant</span>
+                                        <span class="toggle-desc">Activate floating AI manager widget across portal.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="aiEnabled">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="aiPositionSelect">AI Assistant Position</label>
+                                    <select id="aiPositionSelect" class="form-control">
+                                        <option value="bottom-right">Bottom Right</option>
+                                        <option value="bottom-left">Bottom Left</option>
+                                    </select>
+                                </div>
+
+                                <div class="toggle-item">
+                                    <div class="toggle-info">
+                                        <span class="toggle-title">Show Suggested Questions</span>
+                                        <span class="toggle-desc">Display quick prompt chips inside the chat interface.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="aiSuggestions">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div class="toggle-item">
+                                    <div class="toggle-info">
+                                        <span class="toggle-title">AI Notifications</span>
+                                        <span class="toggle-desc">Allow smart assistant to trigger popup insights.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="aiNotifications">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="aiStyleSelect">AI Response Style</label>
+                                    <select id="aiStyleSelect" class="form-control">
+                                        <option value="concise">Concise</option>
+                                        <option value="balanced">Balanced</option>
+                                        <option value="detailed">Detailed</option>
+                                    </select>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save AI Settings</button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- 7. Security Settings -->
+                        <section id="security" class="settings-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-shield-halved"></i> Security</h2>
+                            </div>
+                            <div class="settings-form">
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label>Account Status</label>
+                                        <div><span class="status-badge status-active"><i class="fa-solid fa-circle-check"></i> ACTIVE</span></div>
+                                    </div>
+
+                                    <div class="form-group col-6">
+                                        <label>Role</label>
+                                        <div><span class="role-badge"><i class="fa-solid fa-user-shield"></i> MANAGER</span></div>
+                                    </div>
+                                </div>
+
+                                <form id="securityForm">
+                                    <div class="form-group">
+                                        <label for="sessionTimeoutSelect">Session Timeout</label>
+                                        <select id="sessionTimeoutSelect" class="form-control">
+                                            <option value="15">15 Minutes</option>
+                                            <option value="30">30 Minutes</option>
+                                            <option value="60">1 Hour</option>
+                                            <option value="240">4 Hours</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Security Options</button>
+                                    </div>
+                                </form>
+
+                                <hr class="form-divider">
+
+                                <div class="security-actions">
+                                    <div class="action-block">
+                                        <div class="action-info">
+                                            <strong>Password Management</strong>
+                                            <p>Update your credentials securely on your profile page.</p>
+                                        </div>
+                                        <a href="profile.html" class="btn btn-outline"><i class="fa-solid fa-key"></i> Manage Password</a>
+                                    </div>
+
+                                    <div class="action-block">
+                                        <div class="action-info">
+                                            <strong>Global Session Control</strong>
+                                            <p>Sign out of all active sessions across other browsers and mobile devices.</p>
+                                        </div>
+                                        <button type="button" id="logoutAllBtn" class="btn btn-warning"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout From All Other Devices</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 8. Reset Preferences Section -->
+                        <section id="reset" class="settings-card card-danger">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-rotate-left"></i> Reset Preferences</h2>
+                            </div>
+                            <div class="settings-form">
+                                <p class="text-muted">Restore all Manager configuration options to their original system defaults. This action does not touch store inventory, orders, customer records, or account credentials.</p>
+                                <button type="button" id="resetDefaultsBtn" class="btn btn-danger"><i class="fa-solid fa-trash-arrow-up"></i> Reset Settings</button>
+                            </div>
+                        </section>
+
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- AI Assistant Floating Widget -->
+    <div id="aiWidget" class="ai-widget bottom-right">
+        <button id="aiToggleBtn" class="ai-toggle-btn" aria-label="Open AI Assistant">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div id="aiChatWindow" class="ai-chat-window hidden">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small>Management Assistant</small>
+                    </div>
+                </div>
+                <button id="aiCloseBtn" class="ai-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="ai-chat-body" id="aiChatBody">
+                <div class="ai-message bot">
+                    <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="message-content">
+                        Hi Manager! I can help you with BookHaven operations.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-suggestions" id="aiSuggestionsContainer">
+                <button class="suggestion-chip">How many books are low in stock?</button>
+                <button class="suggestion-chip">What are today's sales?</button>
+                <button class="suggestion-chip">How many pending orders are there?</button>
+                <button class="suggestion-chip">Which books are selling best?</button>
+                <button class="suggestion-chip">Give me a bookstore summary.</button>
+            </div>
+
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask a question..." autocomplete="off">
+                <button id="aiSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Dialogs -->
+    <div id="modalBackdrop" class="modal-backdrop hidden">
+        <!-- Generic Confirmation Modal -->
+        <div id="confirmModal" class="modal-card hidden">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirm Action</h3>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modalCancelBtn" class="btn btn-outline">Cancel</button>
+                <button id="modalConfirmBtn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Page Logic Script -->
+    <script src="js/settings.js"></script>
+</body>
+</html>

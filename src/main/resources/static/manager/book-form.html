@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Book Haven | Manager - Add New Book</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/book-form.css">
+</head>
+<body class="light-mode">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <div class="brand-text">
+                    <h2>BookHaven</h2>
+                    <span>Manager Portal</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="books.html" class="nav-item active">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="profile.html" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <button id="logoutBtn" class="nav-item logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="top-left">
+                    <button id="sidebarToggle" class="icon-btn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="top-right">
+                    <button class="icon-btn notification-btn" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Manager Avatar" class="avatar">
+                        <span class="user-name">Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Form Content -->
+            <main class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 id="formHeading">Add New Book</h1>
+                        <p class="subtitle" id="formSubheading">Add a new book to the BookHaven store.</p>
+                    </div>
+                    <a href="books.html" class="btn btn-secondary" id="backToBooksBtn">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Books
+                    </a>
+                </div>
+
+                <!-- Book Form -->
+                <form id="bookForm" novalidate>
+                    <div class="form-grid">
+                        
+                        <!-- Left Main Column -->
+                        <div class="form-column main-col">
+                            
+                            <!-- Book Information Section -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-circle-info"></i> Book Information</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="bookTitle">Book Title <span class="required">*</span></label>
+                                        <input type="text" id="bookTitle" class="form-control" placeholder="Enter book title">
+                                        <span class="error-msg" id="bookTitleError"></span>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="author">Author <span class="required">*</span></label>
+                                            <input type="text" id="author" class="form-control" placeholder="Enter author name">
+                                            <span class="error-msg" id="authorError"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="isbn">ISBN <span class="required">*</span></label>
+                                            <input type="text" id="isbn" class="form-control" placeholder="Enter ISBN number">
+                                            <span class="error-msg" id="isbnError"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="category">Category <span class="required">*</span></label>
+                                            <select id="category" class="form-control">
+                                                <option value="">Select Category</option>
+                                                <option value="Fiction">Fiction</option>
+                                                <option value="Fantasy">Fantasy</option>
+                                                <option value="Romance">Romance</option>
+                                                <option value="Science Fiction">Science Fiction</option>
+                                                <option value="Programming">Programming</option>
+                                                <option value="Business">Business</option>
+                                                <option value="Biography">Biography</option>
+                                                <option value="History">History</option>
+                                                <option value="Self Help">Self Help</option>
+                                            </select>
+                                            <span class="error-msg" id="categoryError"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="language">Language <span class="required">*</span></label>
+                                            <select id="language" class="form-control">
+                                                <option value="English">English</option>
+                                                <option value="Sinhala">Sinhala</option>
+                                                <option value="Tamil">Tamil</option>
+                                            </select>
+                                            <span class="error-msg" id="languageError"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description Section -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-align-left"></i> Description</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <textarea id="description" class="form-control" rows="6" maxlength="2000" placeholder="Write a detailed description of the book..."></textarea>
+                                        <div class="char-counter-wrapper">
+                                            <span id="charCounter">0 / 2000</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pricing & Inventory Section -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-tags"></i> Pricing & Inventory</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="originalPrice">Original Price (LKR)</label>
+                                            <input type="number" id="originalPrice" class="form-control" placeholder="e.g. 5000" min="0" step="0.01">
+                                            <span class="error-msg" id="originalPriceError"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sellingPrice">Selling Price (LKR) <span class="required">*</span></label>
+                                            <input type="number" id="sellingPrice" class="form-control" placeholder="e.g. 4500" min="0" step="0.01">
+                                            <span class="error-msg" id="sellingPriceError"></span>
+                                        </div>
+                                    </div>
+
+                                    <div id="discountBadgeContainer" class="discount-wrapper hidden">
+                                        <span class="badge-discount" id="discountBadge">0% OFF</span>
+                                    </div>
+
+                                    <hr class="form-divider">
+
+                                    <div class="form-row align-center">
+                                        <div class="form-group">
+                                            <label for="stock">Stock Quantity <span class="required">*</span></label>
+                                            <input type="number" id="stock" class="form-control" placeholder="e.g. 15" min="0" step="1">
+                                            <span class="error-msg" id="stockError"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Live Stock Status</label>
+                                            <div id="stockStatusBadge" class="status-indicator">
+                                                <span class="status-badge badge-out-of-stock"><i class="fa-solid fa-circle-xmark"></i> OUT OF STOCK</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Side Column -->
+                        <div class="form-column side-col">
+                            
+                            <!-- Book Cover Card -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-image"></i> Book Cover</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="cover-upload-wrapper">
+                                        <div class="cover-preview-box" id="coverPreviewBox">
+                                            <div class="placeholder-content" id="uploadPlaceholder">
+                                                <i class="fa-solid fa-book-open cover-icon"></i>
+                                                <p>Upload Book Cover</p>
+                                                <span class="file-hint">JPG, JPEG, PNG, WEBP (Max 5MB)</span>
+                                            </div>
+                                            <img id="coverImgPreview" src="" alt="Book Cover Preview" class="cover-img hidden">
+                                        </div>
+
+                                        <input type="file" id="coverInput" accept="image/jpeg, image/png, image/webp, image/jpg" class="hidden">
+                                        <button type="button" class="btn btn-secondary btn-full" id="chooseImgBtn">
+                                            <i class="fa-solid fa-upload"></i> Choose Image
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-full hidden" id="removeImgBtn">
+                                            <i class="fa-solid fa-trash"></i> Remove Image
+                                        </button>
+
+                                        <div class="file-info hidden" id="fileInfoBox">
+                                            <p id="fileNameText"></p>
+                                            <span id="fileSizeText"></span>
+                                        </div>
+                                        <span class="error-msg text-center" id="coverError"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Publishing Information -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-building"></i> Publishing Information</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="publisher">Publisher</label>
+                                        <input type="text" id="publisher" class="form-control" placeholder="Enter publisher name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDate">Publication Date</label>
+                                        <input type="date" id="publicationDate" class="form-control">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="pages">Pages</label>
+                                            <input type="number" id="pages" class="form-control" placeholder="e.g. 320" min="1">
+                                            <span class="error-msg" id="pagesError"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="edition">Edition</label>
+                                            <input type="text" id="edition" class="form-control" placeholder="e.g. 2nd Edition">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Book Details -->
+                            <div class="form-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-box"></i> Book Details (Optional)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="format">Format</label>
+                                        <select id="format" class="form-control">
+                                            <option value="Paperback">Paperback</option>
+                                            <option value="Hardcover">Hardcover</option>
+                                            <option value="Ebook">Ebook</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="weight">Weight (kg)</label>
+                                        <input type="text" id="weight" class="form-control" placeholder="e.g. 0.50 kg">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dimensions">Dimensions</label>
+                                        <input type="text" id="dimensions" class="form-control" placeholder="e.g. 20 × 13 × 3 cm">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions-bar">
+                        <a href="books.html" class="btn btn-secondary" id="cancelBtn">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="saveBookBtn">
+                            <i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnText">Add Book</span>
+                        </button>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant Widget -->
+    <div class="ai-assistant-wrapper">
+        <button id="aiToggleBtn" class="ai-fab">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div id="aiChatCard" class="ai-chat-card hidden">
+            <div class="ai-chat-header">
+                <div class="ai-brand">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>BookHaven AI Assistant</span>
+                </div>
+                <button id="closeAiBtn" class="icon-btn-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ai-chat-body" id="aiChatBody">
+                <div class="ai-message bot">
+                    Hi Manager! I can help you add or update books.
+                </div>
+                <div class="ai-suggestions">
+                    <button class="ai-chip">What category should this book belong to?</button>
+                    <button class="ai-chip">Help me write a book description.</button>
+                    <button class="ai-chip">Suggest a selling price.</button>
+                    <button class="ai-chip">Suggest keywords for this book.</button>
+                </div>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="aiInput" placeholder="Ask AI something...">
+                <button id="sendAiBtn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal-overlay hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Confirm Logout</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmLogoutBtn" class="btn btn-danger">Logout</button>
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Page JS -->
+    <script src="js/book-form.js"></script>
+</body>
+</html>

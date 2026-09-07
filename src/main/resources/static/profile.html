@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - BookHaven</title>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar-sticky">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html">Books</a>
+                    <a href="index.html#categories">Categories</a>
+                    <a href="index.html#about">About</a>
+                </nav>
+            </div>
+            <div class="nav-right">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search books...">
+                </div>
+                <a href="#wishlist" class="nav-icon-link" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="nav-wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-link" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="nav-cart-badge">0</span>
+                </a>
+                <a href="profile.html" class="nav-icon-link active" title="My Account">
+                    <i class="fa-regular fa-user"></i>
+                </a>
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Profile Container -->
+    <main class="main-layout">
+        <div class="container layout-grid">
+            
+            <!-- Left Sidebar Navigation -->
+            <aside class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="avatar-container">
+                        <img id="sidebar-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250" alt="Customer Avatar">
+                        <button class="btn-change-photo" id="btn-trigger-upload" title="Change Photo">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                        <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+                    </div>
+                    <h3 id="sidebar-user-name">Kaveesha Silva</h3>
+                    <p id="sidebar-user-email">kaveesha@example.com</p>
+                    <span class="badge-role">CUSTOMER</span>
+                </div>
+
+                <nav class="sidebar-menu">
+                    <a href="#profile" class="menu-item active" data-section="profile-section">
+                        <i class="fa-regular fa-user"></i> My Profile
+                    </a>
+                    <a href="orders.html" class="menu-item">
+                        <i class="fa-solid fa-box"></i> My Orders
+                    </a>
+                    <a href="#wishlist" class="menu-item" data-section="wishlist-section">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                    </a>
+                    <a href="#addresses" class="menu-item" data-section="addresses-section">
+                        <i class="fa-solid fa-location-dot"></i> Addresses
+                    </a>
+                    <a href="#settings" class="menu-item" data-section="settings-section">
+                        <i class="fa-solid fa-gear"></i> Account Settings
+                    </a>
+                    <button id="btn-logout" class="menu-item logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Right Main Content Area -->
+            <section class="profile-content">
+                
+                <!-- Welcome Section -->
+                <div class="welcome-banner">
+                    <div>
+                        <h2>Hello, <span id="welcome-first-name">Kaveesha</span>! 👋</h2>
+                        <p>Manage your personal information and BookHaven account.</p>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-blue"><i class="fa-solid fa-bag-shopping"></i></div>
+                        <div class="stat-info">
+                            <p>Total Orders</p>
+                            <h3 id="stat-total-orders">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-red"><i class="fa-solid fa-heart"></i></div>
+                        <div class="stat-info">
+                            <p>Wishlist Items</p>
+                            <h3 id="stat-wishlist-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-green"><i class="fa-solid fa-book"></i></div>
+                        <div class="stat-info">
+                            <p>Books Purchased</p>
+                            <h3 id="stat-books-purchased">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Sections -->
+                
+                <!-- Section: Personal Information -->
+                <div id="profile-section" class="tab-content active">
+                    <div class="card-box">
+                        <div class="card-header">
+                            <h3><i class="fa-regular fa-id-card"></i> Personal Information</h3>
+                            <button id="btn-edit-profile" class="btn btn-outline"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-profile" class="form-grid">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" value="Kaveesha" disabled>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" value="Silva" disabled>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" value="kaveesha@example.com" disabled>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" id="phone" name="phone" value="0771234567" disabled>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-actions hidden" id="profile-form-actions">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" id="btn-cancel-profile" class="btn btn-secondary">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders Shortcut -->
+                    <div class="card-box margin-top">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Orders</h3>
+                            <a href="orders.html" class="link-action">View All Orders <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-orders-list">
+                                        <!-- Dynamically Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Wishlist -->
+                <div id="wishlist-section" class="tab-content">
+                    <div class="card-box">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-heart"></i> My Wishlist</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid-wishlist" id="wishlist-grid">
+                                <!-- Dynamically Populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Addresses -->
+                <div id="addresses-section" class="tab-content">
+                    <div class="card-box">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-map-location-dot"></i> Saved Addresses</h3>
+                            <button id="btn-add-address" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add New Address</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid-addresses" id="addresses-grid">
+                                <!-- Dynamically Populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Account Settings -->
+                <div id="settings-section" class="tab-content">
+                    
+                    <!-- Change Password -->
+                    <div class="card-box">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-key"></i> Change Password</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-change-password" class="form-stacked">
+                                <div class="form-group">
+                                    <label for="currentPassword">Current Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="currentPassword" name="currentPassword">
+                                        <button type="button" class="btn-toggle-password"><i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="newPassword" name="newPassword">
+                                        <button type="button" class="btn-toggle-password"><i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                    <div class="strength-meter">
+                                        <div class="strength-bar" id="strength-bar"></div>
+                                    </div>
+                                    <span class="strength-text" id="strength-text">Password strength</span>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="confirmPassword" name="confirmPassword">
+                                        <button type="button" class="btn-toggle-password"><i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                    <span class="error-message"></span>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Notification Preferences -->
+                    <div class="card-box margin-top">
+                        <div class="card-header">
+                            <h3><i class="fa-regular fa-bell"></i> Notification Preferences</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="toggle-list">
+                                <div class="toggle-item">
+                                    <div>
+                                        <strong>Order updates</strong>
+                                        <p>Receive notifications regarding your order shipment and status changes.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pref-order-updates" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <div>
+                                        <strong>Delivery notifications</strong>
+                                        <p>Get real-time updates when your package is out for delivery.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pref-delivery-notif" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <div>
+                                        <strong>New book announcements</strong>
+                                        <p>Stay informed about new releases and arrivals from your favorite authors.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pref-new-books" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <div>
+                                        <strong>Special offers</strong>
+                                        <p>Receive exclusive discount coupons and flash sale alerts.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pref-offers" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <div>
+                                        <strong>AI recommendations</strong>
+                                        <p>Allow our BookHaven AI agent to tailor book suggestions via notification alerts.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pref-ai-recom">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Security -->
+                    <div class="card-box margin-top">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-shield-halved"></i> Account Security</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="security-list">
+                                <div class="security-item">
+                                    <div>
+                                        <strong>Email Address</strong>
+                                        <p>Primary account email verification status.</p>
+                                    </div>
+                                    <span class="badge-status badge-success"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                                </div>
+                                <div class="security-item">
+                                    <div>
+                                        <strong>Password Status</strong>
+                                        <p>Last changed: 30 days ago</p>
+                                    </div>
+                                    <span class="text-muted">Secure</span>
+                                </div>
+                                <div class="security-item">
+                                    <div>
+                                        <strong>Two-Factor Authentication (2FA)</strong>
+                                        <p>Add an extra layer of security to your BookHaven account.</p>
+                                    </div>
+                                    <button class="btn btn-outline-sm" id="btn-enable-2fa">Enable 2FA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Address Add/Edit Modal -->
+    <div id="address-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="address-modal-title">Add New Address</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-address">
+                <input type="hidden" id="addressId">
+                <div class="modal-body form-grid">
+                    <div class="form-group">
+                        <label for="addrLabel">Address Label</label>
+                        <input type="text" id="addrLabel" placeholder="e.g. Home, Office" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipientName">Recipient Name</label>
+                        <input type="text" id="recipientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addrPhone">Phone Number</label>
+                        <input type="text" id="addrPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addrLine1">Address Line 1</label>
+                        <input type="text" id="addrLine1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addrLine2">Address Line 2 (Optional)</label>
+                        <input type="text" id="addrLine2">
+                    </div>
+                    <div class="form-group">
+                        <label for="addrCity">City</label>
+                        <input type="text" id="addrCity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addrPostal">Postal Code</label>
+                        <input type="text" id="addrPostal" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addrCountry">Country</label>
+                        <input type="text" id="addrCountry" value="Sri Lanka" required>
+                    </div>
+                    <div class="form-group full-width checkbox-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="isDefaultAddr">
+                            <span class="checkmark"></span>
+                            Set as default address
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Address</button>
+                    <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (Logout/Delete) -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 id="confirm-modal-title">Confirm Action</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-message">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirm-yes" class="btn btn-danger">Confirm</button>
+                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Floating AI Assistant Widget -->
+    <div class="ai-assistant-widget">
+        <button id="ai-toggle-btn" class="ai-fab">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+        <div id="ai-chat-window" class="ai-chat-window hidden">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <strong>BookHaven AI Assistant</strong>
+                        <small>Online | Ready to help</small>
+                    </div>
+                </div>
+                <button id="ai-close-btn" class="ai-close">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-msg ai-msg-bot">
+                    Hi! I can help you find books based on your interests or answer questions about your BookHaven account.
+                </div>
+            </div>
+            <div class="ai-suggestions">
+                <button class="ai-chip">Recommend a book for me</button>
+                <button class="ai-chip">What books have I purchased?</button>
+                <button class="ai-chip">Recommend books similar to my purchases</button>
+                <button class="ai-chip">Show me books under Rs. 3000</button>
+            </div>
+            <div class="ai-chat-footer">
+                <input type="text" id="ai-input-field" placeholder="Ask AI a question...">
+                <button id="ai-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier online destination for curated books, inspiring literature, and seamless digital shopping experiences.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="categories.html">Categories</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="profile.html">My Account</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="#wishlist">Wishlist</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/profile.js"></script>
+</body>
+</html>

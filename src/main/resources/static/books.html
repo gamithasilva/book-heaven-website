@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Books - BookHaven</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/books_style.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Sticky Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="#" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html" class="active">Books</a>
+                    <a href="index.html#categories">Categories</a>
+                    <a href="index.html#about">About</a>
+                </nav>
+            </div>
+            
+            <div class="nav-right">
+                <button class="nav-icon-btn mobile-search-trigger" id="mobile-search-btn" title="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <a href="#" class="nav-icon-btn" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-outline" id="login-btn">Login</a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="#">Home</a>
+            <a href="books.html" class="active">Books</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <!-- Page Header & Breadcrumb -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="#">Home</a> <i class="fa-solid fa-chevron-right"></i> <span>Books</span>
+            </div>
+            <h1>Explore Our Books</h1>
+            <p class="subtitle">Discover your next favorite book from our growing collection.</p>
+        </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <main class="container main-content">
+        
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-bar-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search by book title, author, ISBN...">
+                <button type="button" class="clear-btn" id="clear-search-btn" style="display: none;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button type="button" class="btn btn-primary" id="search-btn">Search</button>
+            </div>
+        </section>
+
+        <!-- Filter Controls Toggle for Mobile -->
+        <div class="mobile-filter-bar">
+            <button class="btn btn-outline" id="toggle-mobile-filters">
+                <i class="fa-solid fa-filter"></i> Filters & Categories
+            </button>
+        </div>
+
+        <div class="shop-layout">
+            <!-- Filters Sidebar -->
+            <aside class="sidebar-filters" id="sidebar-filters">
+                <div class="sidebar-header">
+                    <h3>Filters</h3>
+                    <button class="close-sidebar-btn" id="close-sidebar-btn">&times;</button>
+                </div>
+
+                <!-- Categories -->
+                <div class="filter-group">
+                    <h4>Categories</h4>
+                    <ul class="category-list" id="category-list">
+                        <li><a href="#" class="active" data-category="All">All Books</a></li>
+                        <li><a href="#" data-category="Fiction">Fiction</a></li>
+                        <li><a href="#" data-category="Fantasy">Fantasy</a></li>
+                        <li><a href="#" data-category="Romance">Romance</a></li>
+                        <li><a href="#" data-category="Science Fiction">Science Fiction</a></li>
+                        <li><a href="#" data-category="Programming">Programming</a></li>
+                        <li><a href="#" data-category="Business">Business</a></li>
+                        <li><a href="#" data-category="Biography">Biography</a></li>
+                        <li><a href="#" data-category="History">History</a></li>
+                    </ul>
+                </div>
+
+                <!-- Price Range -->
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <div class="price-slider-container">
+                        <input type="range" id="price-range" min="0" max="10000" step="500" value="10000">
+                        <div class="price-labels">
+                            <span id="price-min">Rs. 0</span>
+                            <span id="price-max-display">Rs. 10,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="filter-group">
+                    <h4>Rating</h4>
+                    <div class="rating-filters">
+                        <label class="rating-option"><input type="radio" name="rating" value="5"> ★★★★★ (5.0)</label>
+                        <label class="rating-option"><input type="radio" name="rating" value="4"> ★★★★☆ (4.0 & up)</label>
+                        <label class="rating-option"><input type="radio" name="rating" value="3"> ★★★☆☆ (3.0 & up)</label>
+                        <label class="rating-option"><input type="radio" name="rating" value="2"> ★★☆☆☆ (2.0 & up)</label>
+                        <label class="rating-option"><input type="radio" name="rating" value="1"> ★☆☆☆☆ (1.0 & up)</label>
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="filter-group">
+                    <h4>Availability</h4>
+                    <label class="checkbox-option"><input type="checkbox" id="stock-in" checked> In Stock</label>
+                    <label class="checkbox-option"><input type="checkbox" id="stock-out" checked> Out of Stock</label>
+                </div>
+
+                <!-- Language -->
+                <div class="filter-group">
+                    <h4>Language</h4>
+                    <label class="checkbox-option"><input type="checkbox" class="lang-filter" value="English" checked> English</label>
+                    <label class="checkbox-option"><input type="checkbox" class="lang-filter" value="Sinhala" checked> Sinhala</label>
+                    <label class="checkbox-option"><input type="checkbox" class="lang-filter" value="Tamil" checked> Tamil</label>
+                </div>
+
+                <!-- Sidebar Actions -->
+                <div class="sidebar-actions">
+                    <button class="btn btn-primary btn-block" id="apply-filters-btn">Apply Filters</button>
+                    <button class="btn btn-outline btn-block" id="clear-filters-btn">Clear Filters</button>
+                </div>
+            </aside>
+
+            <!-- Results Section -->
+            <section class="results-container">
+                <!-- Sorting Bar -->
+                <div class="results-header">
+                    <div class="results-count">
+                        <span id="results-count-text">Showing items...</span>
+                    </div>
+                    <div class="sort-container">
+                        <label for="sort-select">Sort By:</label>
+                        <select id="sort-select" class="sort-dropdown">
+                            <option value="recommended">Recommended</option>
+                            <option value="newest">Newest</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="popular">Most Popular</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Loading State Container -->
+                <div id="loading-state" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading books...</p>
+                </div>
+
+                <!-- Empty State Container -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fa-solid fa-book-open-reader empty-icon"></i>
+                    <h3>No books found</h3>
+                    <p>Try changing your search or filters to find what you are looking for.</p>
+                    <button class="btn btn-primary" id="reset-filters-btn">Clear Filters</button>
+                </div>
+
+                <!-- Book Grid -->
+                <div class="book-grid" id="book-grid">
+                    <!-- Cards dynamically rendered via JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container" id="pagination-container">
+                    <!-- Dynamic Pagination Buttons -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- AI Book Assistant Floating Widget -->
+    <div class="ai-widget-container">
+        <button class="ai-trigger-btn" id="ai-trigger-btn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-popup" id="ai-chat-popup" style="display: none;">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small>Virtual Assistant</small>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-close-btn">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-message bot-message">
+                    Hi! I can help you find the perfect book. What are you looking for?
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <button class="ai-suggestion-chip">Recommend a fantasy book</button>
+                    <button class="ai-suggestion-chip">Books under Rs. 3000</button>
+                    <button class="ai-suggestion-chip">Best programming books</button>
+                    <button class="ai-suggestion-chip">Books similar to Harry Potter</button>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-input" placeholder="Type a message...">
+                <button id="ai-send-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="#" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier destination for online literature browsing and purchasing. Quality books delivered directly to your doorstep.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="index.html#categories">Categories</a></li>
+                    <li><a href="index.html#about">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/books.js"></script>
+</body>
+</html>

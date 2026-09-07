@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - Category Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/category.css">
+</head>
+<body class="light-mode">
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <i class="fa-solid fa-book-open brand-icon"></i>
+                <span class="brand-name">BookHaven</span>
+            </div>
+            <button class="icon-btn mobile-close" id="sidebarCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="books.html" class="nav-item">
+                <i class="fa-solid fa-book"></i>
+                <span>Books</span>
+            </a>
+            <a href="category.html" class="nav-item active">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Categories</span>
+            </a>
+            <a href="orders.html" class="nav-item">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Orders</span>
+            </a>
+            <a href="customers.html" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                <span>Customers</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="icon-btn toggle-sidebar" id="sidebarToggleBtn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="search-bar-global">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Global search...">
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="notification-wrapper">
+                    <button class="icon-btn" id="notifBtn">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Manager+Admin&background=4f46e5&color=fff" alt="User Profile" class="avatar">
+                    <div class="user-info">
+                        <span class="user-name">Manager Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <div class="page-header">
+                <div class="page-title-group">
+                    <h1>Category Management</h1>
+                    <p class="subtitle">Manage the categories used to organize your books.</p>
+                </div>
+                <button class="btn btn-primary" id="addCategoryBtn">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add New Category</span>
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon bg-indigo">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Total Categories</span>
+                        <h3 class="stat-value" id="statTotalCategories">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Active Categories</span>
+                        <h3 class="stat-value" id="statActiveCategories">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-amber">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Inactive Categories</span>
+                        <h3 class="stat-value" id="statInactiveCategories">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-sky">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Total Books Categorized</span>
+                        <h3 class="stat-value" id="statCategorizedBooks">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card controls-card">
+                <div class="controls-grid">
+                    <div class="search-input-group">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search categories by name or description...">
+                    </div>
+
+                    <div class="filter-group">
+                        <select id="statusFilter" class="form-control">
+                            <option value="ALL">All Status</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+
+                        <select id="sortBySelect" class="form-control">
+                            <option value="NEWEST">Newest</option>
+                            <option value="OLDEST">Oldest</option>
+                            <option value="NAME_ASC">Name A-Z</option>
+                            <option value="NAME_DESC">Name Z-A</option>
+                            <option value="BOOKS_DESC">Most Books</option>
+                            <option value="BOOKS_ASC">Least Books</option>
+                        </select>
+                    </div>
+
+                    <div class="action-buttons-group">
+                        <button class="btn btn-secondary" id="applyFiltersBtn">Apply Filters</button>
+                        <button class="btn btn-outline" id="clearFiltersBtn">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card loading-state hidden" id="loadingSpinner">
+                <i class="fa-solid fa-circle-notch fa-spin spinner-icon"></i>
+                <p>Loading categories...</p>
+            </div>
+
+            <div class="card empty-state hidden" id="emptyState">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <h2>No Categories Found</h2>
+                <p>Create your first category to start organizing your books.</p>
+                <button class="btn btn-primary" id="emptyAddCategoryBtn">
+                    <i class="fa-solid fa-plus"></i> Add New Category
+                </button>
+            </div>
+
+            <div class="card table-card" id="tableContainer">
+                <div class="table-responsive">
+                    <table class="data-table" id="categoriesTable">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Books</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-wrapper">
+                    <div class="pagination-info" id="paginationInfo">
+                        Showing 0-0 of 0 categories
+                    </div>
+                    <div class="pagination-controls" id="paginationControls">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="categoryModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle">Add New Category</h3>
+            <button class="icon-btn modal-close" id="closeCategoryModalBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="categoryForm">
+            <input type="hidden" id="categoryId">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="categoryName" class="form-label">Category Name <span class="required">*</span></label>
+                    <input type="text" id="categoryName" class="form-control" placeholder="e.g. Science Fiction">
+                    <small class="error-message" id="categoryNameError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDescription" class="form-label">Description</label>
+                    <textarea id="categoryDescription" class="form-control" rows="4" placeholder="Brief details about this category..."></textarea>
+                    <small class="error-message" id="categoryDescriptionError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryStatus" class="form-label">Status <span class="required">*</span></label>
+                    <select id="categoryStatus" class="form-control">
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelCategoryModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="viewCategoryModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Category Information</h3>
+            <button class="icon-btn modal-close" id="closeViewModalBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="view-details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Category ID</span>
+                    <span class="detail-value" id="viewCategoryId">#0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Category Name</span>
+                    <span class="detail-value font-bold" id="viewCategoryName">-</span>
+                </div>
+                <div class="detail-item full-width">
+                    <span class="detail-label">Description</span>
+                    <p class="detail-value" id="viewCategoryDescription">-</p>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Books</span>
+                    <span class="detail-value" id="viewCategoryBooks">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" id="viewCategoryStatus">-</span>
+                </div>
+                <div class="detail-item full-width">
+                    <span class="detail-label">Created Date</span>
+                    <span class="detail-value" id="viewCategoryCreated">-</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="viewEditCategoryBtn">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Category
+            </button>
+            <button type="button" class="btn btn-outline" id="viewCloseBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="deleteCategoryModal">
+    <div class="modal-container modal-sm">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <button class="icon-btn modal-close" id="closeDeleteModalBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="deleteCategoryName">this category</strong>?</p>
+            <div class="alert alert-warning hidden" id="deleteWarningMessage">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>This category contains books and cannot be deleted. Please move the books to another category first.</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Category</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="logoutModal">
+    <div class="modal-container modal-sm">
+        <div class="modal-header">
+            <h3>Logout</h3>
+            <button class="icon-btn modal-close" id="closeLogoutModalBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="cancelLogoutBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+        </div>
+    </div>
+</div>
+
+<div class="ai-assistant-widget">
+    <button class="ai-toggle-btn" id="aiToggleBtn">
+        <i class="fa-solid fa-robot"></i>
+        <span>Ask BookHaven AI</span>
+    </button>
+
+    <div class="ai-chat-window hidden" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-header-title">
+                <i class="fa-solid fa-robot"></i>
+                <span>BookHaven AI Assistant</span>
+            </div>
+            <button class="icon-btn ai-close" id="aiCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="ai-message bot">
+                <div class="message-content">
+                    Hi Manager! I can help you manage your book categories.
+                </div>
+            </div>
+
+            <div class="ai-suggestions" id="aiSuggestions">
+                <p class="suggestion-title">Suggested Prompts:</p>
+                <button class="suggestion-btn">How many active categories do we have?</button>
+                <button class="suggestion-btn">Which category has the most books?</button>
+                <button class="suggestion-btn">Show categories with no books.</button>
+                <button class="suggestion-btn">Which categories are inactive?</button>
+                <button class="suggestion-btn">How many books are in the Fiction category?</button>
+                <button class="suggestion-btn">Which categories should I review?</button>
+            </div>
+        </div>
+
+        <div class="ai-chat-footer">
+            <input type="text" id="aiInput" placeholder="Ask AI something about categories...">
+            <button class="btn btn-primary" id="aiSendBtn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="js/category.js"></script>
+</body>
+</html>

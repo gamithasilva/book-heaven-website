@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - BookHaven</title>
+    <!-- Font Awesome 6.4.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/orders.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Sticky Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html">Books</a>
+                    <a href="#">Categories</a>
+                    <a href="#">About</a>
+                </nav>
+            </div>
+            <div class="nav-right">
+                <div class="nav-search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search books...">
+                </div>
+                <a href="#" class="nav-icon-btn" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-outline" id="account-btn"><i class="fa-regular fa-user"></i> My Account</a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="index.html">Home</a>
+            <a href="books.html">Books</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container main-content">
+
+        <!-- Page Header & Breadcrumb -->
+        <div class="page-header-container">
+            <div class="page-title-group">
+                <h1>My Orders</h1>
+                <p class="subtitle">View your purchases, track deliveries, and manage your orders.</p>
+            </div>
+            <nav class="breadcrumb-container" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li><a href="index.html">Home</a></li>
+                    <li><i class="fa-solid fa-chevron-right"></i></li>
+                    <li class="active">My Orders</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- 3. Order Statistics Section -->
+        <section class="stats-grid" id="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper total">
+                    <i class="fa-solid fa-boxes-packing"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Orders</span>
+                    <h3 class="stat-value" id="stat-total">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper pending">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Pending</span>
+                    <h3 class="stat-value" id="stat-pending">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper shipped">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Shipped</span>
+                    <h3 class="stat-value" id="stat-shipped">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper delivered">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Delivered</span>
+                    <h3 class="stat-value" id="stat-delivered">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Order Filters & Search Section -->
+        <section class="filters-card">
+            <div class="filter-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search by order number or book name...">
+            </div>
+            <div class="filter-options-grid">
+                <div class="filter-group">
+                    <label for="status-filter">Status</label>
+                    <select id="status-filter">
+                        <option value="ALL">All Orders</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="PROCESSING">Processing</option>
+                        <option value="SHIPPED">Shipped</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="date-filter">Date Range</label>
+                    <select id="date-filter">
+                        <option value="ALL">All Time</option>
+                        <option value="30_DAYS">Last 30 Days</option>
+                        <option value="3_MONTHS">Last 3 Months</option>
+                        <option value="6_MONTHS">Last 6 Months</option>
+                        <option value="THIS_YEAR">This Year</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort-filter">Sort By</label>
+                    <select id="sort-filter">
+                        <option value="NEWEST">Newest First</option>
+                        <option value="OLDEST">Oldest First</option>
+                        <option value="HIGHEST">Highest Amount</option>
+                        <option value="LOWEST">Lowest Amount</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-outline btn-sm" id="clear-filters-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Skeleton State -->
+        <div id="orders-loading-state" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading your orders...</p>
+        </div>
+
+        <!-- Error Retry State -->
+        <div id="orders-error-state" class="error-state" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation error-icon"></i>
+            <h3>Unable to load your orders</h3>
+            <p>Please check your connection and try again.</p>
+            <button class="btn btn-primary" id="retry-fetch-btn"><i class="fa-solid fa-rotate-right"></i> Retry</button>
+        </div>
+
+        <!-- 11. Empty Orders View -->
+        <div id="empty-orders-state" class="empty-state" style="display: none;">
+            <div class="empty-icon-box">📦</div>
+            <h2>No Orders Yet</h2>
+            <p>You haven't purchased any books yet. Find something you'll love!</p>
+            <a href="books.html" class="btn btn-primary btn-lg"><i class="fa-solid fa-compass"></i> Explore Books</a>
+        </div>
+
+        <!-- 5. Order List Container -->
+        <div id="orders-list-container" class="orders-list">
+            <!-- Dynamic Order Cards Injected Here -->
+        </div>
+
+        <!-- 12. Pagination -->
+        <div class="pagination-wrapper" id="pagination-container" style="display: none;">
+            <button class="page-btn disabled" id="prev-page-btn"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+            <div class="page-numbers" id="page-numbers">
+                <button class="page-num active">1</button>
+                <button class="page-num">2</button>
+            </div>
+            <button class="page-btn" id="next-page-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </main>
+
+    <!-- 7. Order Tracking Modal -->
+    <div id="tracking-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-md">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h3>Track Order</h3>
+                    <span id="track-order-num" class="text-muted">#BH-2026-00000</span>
+                </div>
+                <button class="modal-close-btn" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="delivery-eta-banner">
+                    <i class="fa-solid fa-truck-ramp-box"></i>
+                    <span id="track-eta-text">Estimated Delivery: Loading...</span>
+                </div>
+                <div class="timeline-stepper" id="tracking-timeline-container">
+                    <!-- Dynamic Stepper Steps Injected Here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Order Details Modal -->
+    <div id="details-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="modal-close-btn close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="details-info-grid">
+                    <div class="detail-box">
+                        <label>Order Number</label>
+                        <strong id="modal-order-number">-</strong>
+                    </div>
+                    <div class="detail-box">
+                        <label>Order Date</label>
+                        <span id="modal-order-date">-</span>
+                    </div>
+                    <div class="detail-box">
+                        <label>Order Status</label>
+                        <div id="modal-order-status">-</div>
+                    </div>
+                    <div class="detail-box">
+                        <label>Payment Method</label>
+                        <span id="modal-payment-method">-</span>
+                    </div>
+                    <div class="detail-box">
+                        <label>Payment Status</label>
+                        <span id="modal-payment-status" class="badge-sub">-</span>
+                    </div>
+                </div>
+
+                <div class="address-section-box">
+                    <h4><i class="fa-solid fa-location-dot"></i> Delivery Address</h4>
+                    <p id="modal-delivery-address">-</p>
+                </div>
+
+                <div class="modal-items-table-wrapper">
+                    <h4>Ordered Books</h4>
+                    <table class="modal-items-table">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-items-tbody">
+                            <!-- Items Injected Here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-pricing-summary">
+                    <div class="price-row"><span>Subtotal</span><strong id="modal-summary-subtotal">Rs. 0</strong></div>
+                    <div class="price-row"><span>Discount</span><strong id="modal-summary-discount" class="text-success">-Rs. 0</strong></div>
+                    <div class="price-row"><span>Delivery Fee</span><strong id="modal-summary-delivery">Rs. 0</strong></div>
+                    <hr class="summary-hr">
+                    <div class="price-row total"><span>Total</span><strong id="modal-summary-total">Rs. 0</strong></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Cancel Order Confirmation Modal -->
+    <div id="cancel-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Cancel Order</h3>
+                <button class="modal-close-btn close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cancel-warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>Are you sure you want to cancel order <strong id="cancel-modal-ordernum">#BH-0000</strong>?</p>
+                </div>
+                <p class="text-muted text-sm">This action cannot be undone once confirmed.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Keep Order</button>
+                <button class="btn btn-danger" id="confirm-cancel-btn">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 13. Floating AI Assistant Widget -->
+    <div class="ai-widget-container">
+        <button class="ai-trigger-btn" id="ai-trigger-btn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-popup" id="ai-chat-popup" style="display: none;">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small>Order Assistant</small>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-close-btn">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-message bot-message">
+                    Hi! I can help you with your orders, delivery status, or book recommendations.
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <button class="ai-suggestion-chip">Where is my latest order?</button>
+                    <button class="ai-suggestion-chip">When will my order arrive?</button>
+                    <button class="ai-suggestion-chip">Show me my recent order</button>
+                    <button class="ai-suggestion-chip">Recommend a book based on my purchases</button>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-input" placeholder="Ask about your orders...">
+                <button id="ai-send-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier destination for online literature browsing and purchasing. Quality books delivered directly to your doorstep.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="#">Categories</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="cart.html">Shopping Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom Orders Script -->
+    <script src="js/orders.js"></script>
+</body>
+</html>

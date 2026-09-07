@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - BookHaven</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <i class="fa-solid fa-triangle-exclamation modal-icon"></i>
+                <h3>Remove Item</h3>
+            </div>
+            <p id="modal-message">Remove this book from your cart?</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modal-cancel-btn">Cancel</button>
+                <button class="btn btn-danger" id="modal-confirm-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="books.html">Books</a>
+                    <a href="#">Categories</a>
+                    <a href="#">About</a>
+                </nav>
+            </div>
+            
+            <div class="nav-right">
+                <button class="nav-icon-btn mobile-search-trigger" id="mobile-search-btn" title="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <a href="#" class="nav-icon-btn" title="Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn active" title="Cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="badge" id="cart-badge">0</span>
+                </a>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-outline" id="login-btn">Login</a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="index.html">Home</a>
+            <a href="books.html">Books</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container main-content">
+
+        <!-- Page Header & Breadcrumb -->
+        <div class="page-header-container">
+            <div class="page-title-group">
+                <h1>Shopping Cart</h1>
+                <p class="subtitle">Review your selected books before checkout.</p>
+            </div>
+            <nav class="breadcrumb-container" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li><a href="index.html">Home</a></li>
+                    <li><i class="fa-solid fa-chevron-right"></i></li>
+                    <li class="active">Shopping Cart</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Skeleton Loading State -->
+        <div id="loading-state" class="skeleton-container">
+            <div class="skeleton-layout">
+                <div class="skeleton-items-col">
+                    <div class="skeleton-box skeleton-card"></div>
+                    <div class="skeleton-box skeleton-card"></div>
+                </div>
+                <div class="skeleton-summary-col">
+                    <div class="skeleton-box skeleton-summary"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div id="empty-cart-state" class="empty-state" style="display: none;">
+            <div class="empty-icon-wrapper">
+                <i class="fa-solid fa-cart-flatbed empty-icon"></i>
+            </div>
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added any books yet.</p>
+            <a href="books.html" class="btn btn-primary btn-lg"><i class="fa-solid fa-compass"></i> Explore Books</a>
+        </div>
+
+        <!-- Main Active Cart View Layout -->
+        <div id="cart-content-layout" class="cart-layout" style="display: none;">
+            
+            <!-- Left Side: Items List -->
+            <div class="cart-items-column">
+                <div id="cart-items-container" class="cart-items-list">
+                    <!-- Dynamic Cart Cards Injected Here -->
+                </div>
+
+                <div class="cart-actions-row">
+                    <a href="books.html" class="btn btn-outline">
+                        <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Side: Order Summary -->
+            <div class="cart-summary-column">
+                <div class="summary-card">
+                    <h3>Order Summary</h3>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong id="summary-subtotal">Rs. 0</strong>
+                    </div>
+
+                    <div class="summary-row discount-row" id="discount-display-row" style="display: none;">
+                        <span>Discount <small id="applied-coupon-code"></small></span>
+                        <strong id="summary-discount" class="text-success">-Rs. 0</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Delivery</span>
+                        <strong id="summary-delivery">Rs. 350</strong>
+                    </div>
+
+                    <hr class="summary-divider">
+
+                    <div class="summary-row total-row">
+                        <span>Total</span>
+                        <strong id="summary-total">Rs. 0</strong>
+                    </div>
+
+                    <!-- Coupon Input Section -->
+                    <div class="coupon-box">
+                        <label for="coupon-code-input">Have a discount code?</label>
+                        <div class="coupon-input-group">
+                            <input type="text" id="coupon-code-input" placeholder="e.g. BOOK10, SAVE20" uppercase>
+                            <button class="btn btn-outline" id="apply-coupon-btn">Apply</button>
+                        </div>
+                        <span class="coupon-message" id="coupon-message"></span>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg btn-block" id="checkout-btn">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <!-- Delivery Information Widget -->
+                    <div class="delivery-info-box">
+                        <div class="delivery-header">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <h4>Delivery Information</h4>
+                        </div>
+                        <p>Standard Delivery: <strong>2–5 business days</strong></p>
+                        <p class="free-shipping-note">Free delivery for orders above <strong>Rs. 10,000</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Books Section -->
+        <section class="recommended-section">
+            <h2>You May Also Like</h2>
+            <div class="book-grid" id="recommended-books-grid">
+                <!-- Dynamic Recommended Book Cards Injected Here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating AI Assistant -->
+    <div class="ai-widget-container">
+        <button class="ai-trigger-btn" id="ai-trigger-btn">
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask BookHaven AI</span>
+        </button>
+
+        <div class="ai-chat-popup" id="ai-chat-popup" style="display: none;">
+            <div class="ai-chat-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-robot"></i>
+                    <div>
+                        <h4>BookHaven AI</h4>
+                        <small>Cart Assistant</small>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-close-btn">&times;</button>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body">
+                <div class="ai-message bot-message">
+                    Need help choosing another book or understanding your order?
+                </div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <button class="ai-suggestion-chip">Recommend another book</button>
+                    <button class="ai-suggestion-chip">Find books under Rs. 3000</button>
+                    <button class="ai-suggestion-chip">What is in my cart?</button>
+                    <button class="ai-suggestion-chip">Is there a discount available?</button>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-input" placeholder="Ask a question about your cart...">
+                <button id="ai-send-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>BookHaven</span>
+                </a>
+                <p>Your premier destination for online literature browsing and purchasing. Quality books delivered directly to your doorstep.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="#">Categories</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Customer</h4>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="cart.html">Shopping Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Contact Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 BookHaven. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom Cart JavaScript -->
+    <script src="js/cart.js"></script>
+</body>
+</html>

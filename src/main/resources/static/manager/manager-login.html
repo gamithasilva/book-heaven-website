@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Login - BookHaven Management Portal</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Manager Styles -->
+    <link rel="stylesheet" href="css/manager-login.css">
+</head>
+<body>
+
+    <!-- Theme Toggle Floating Control -->
+    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme" title="Switch Light/Dark Mode">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <div class="split-screen-container">
+        
+        <!-- LEFT SIDE: Visual & Brand Showcase -->
+        <aside class="brand-panel">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <a href="../index.html" class="back-link">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Book Store</span>
+                </a>
+
+                <div class="brand-header">
+                    <div class="brand-logo">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div class="brand-titles">
+                        <h1>BookHaven</h1>
+                        <span class="portal-badge">Manager Portal</span>
+                    </div>
+                </div>
+
+                <div class="brand-hero">
+                    <h2>Manage your bookstore with confidence.</h2>
+                    <p>Manage books, orders, customers, inventory, and sales from one powerful dashboard.</p>
+                </div>
+
+                <!-- Feature Indicators -->
+                <div class="feature-indicators">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <span>Book Management</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <span>Order Management</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <span>Customer Management</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <span>Sales Overview</span>
+                    </div>
+                </div>
+
+                <!-- Security Notice Box -->
+                <div class="security-card">
+                    <div class="security-header">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <strong>Secure Manager Access</strong>
+                    </div>
+                    <div class="security-details">
+                        <span><i class="fa-solid fa-lock"></i> Protected Account</span>
+                        <span><i class="fa-solid fa-user-shield"></i> Authorized Personnel Only</span>
+                    </div>
+                    <p class="security-warning">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        This area is restricted to BookHaven managers.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT SIDE: Login Card Area -->
+        <main class="login-panel">
+            <div class="login-card-wrapper">
+                
+                <div class="mobile-back-link">
+                    <a href="../index.html">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Store
+                    </a>
+                </div>
+
+                <div class="login-header">
+                    <h2>Manager Login</h2>
+                    <p>Sign in to access the BookHaven Management Portal.</p>
+                </div>
+
+                <!-- Main Login Form -->
+                <form id="manager-login-form" novalidate>
+                    
+                    <!-- Global Error Container -->
+                    <div id="global-error" class="alert-box alert-danger hidden">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span id="global-error-text">Invalid email or password.</span>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                placeholder="manager@bookhaven.com" 
+                                autocomplete="email"
+                                required>
+                        </div>
+                        <span class="error-message" id="email-error"></span>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="Enter your password" 
+                                autocomplete="current-password"
+                                required>
+                            <button type="button" id="toggle-password" class="btn-toggle-password" title="Show/Hide Password">
+                                <i class="fa-regular fa-eye" id="password-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="password-error"></span>
+                    </div>
+
+                    <!-- Options Row -->
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">Remember Me</span>
+                        </label>
+                        <a href="#" id="forgot-password-link" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="btn-submit" class="btn-login">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...</span>
+                    </button>
+                </form>
+
+                <!-- Footer Authorization Tag -->
+                <div class="login-footer">
+                    <p><i class="fa-solid fa-user-lock"></i> Authorized Manager Access Only</p>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fa-solid fa-headset"></i></div>
+                <h3>Password Reset Request</h3>
+                <button id="modal-close" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please contact the system administrator to reset the manager password.</p>
+                <div class="admin-contact-box">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                    <span>admin-support@bookhaven.com</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-ok-btn" class="btn-modal-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Custom Manager Login JS -->
+    <script src="js/manager-login.js"></script>
+</body>
+</html>
