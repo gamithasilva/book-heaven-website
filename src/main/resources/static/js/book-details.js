@@ -6,76 +6,7 @@
 // ==========================================================================
 // Static Mock Repository (Fallback data mimicking Spring Boot REST Payload)
 // ==========================================================================
-const mockBooksDatabase = [
-    {
-        id: "1",
-        title: "Clean Code",
-        author: "Robert C. Martin",
-        category: "Programming",
-        isbn: "9780132350884",
-        rating: 4.8,
-        reviewCount: 245,
-        shortDescription: "A handbook of agile software craftsmanship that teaches practical principles for writing clean, maintainable code.",
-        fullDescription: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn't have to be that way. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. The third part is the payoff: a single chapter containing the list of heuristics and 'smells' gathered while creating the case studies.",
-        price: 4500,
-        originalPrice: 5000,
-        stock: 15,
-        badge: "20% OFF",
-        publisher: "Prentice Hall",
-        pubDate: "August 1, 2008",
-        pages: 464,
-        language: "English",
-        coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
-        thumbnails: [
-            "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
-            "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600"
-        ]
-    },
-    {
-        id: "2",
-        title: "The Pragmatic Programmer",
-        author: "Andrew Hunt & David Thomas",
-        category: "Programming",
-        isbn: "9780135957059",
-        rating: 4.9,
-        reviewCount: 310,
-        shortDescription: "Your journey to mastery in software development, covering career development to architectural choices.",
-        fullDescription: "The Pragmatic Programmer cuts through the increasing specialization and technicalities of modern software development to examine the core process--taking a requirement and producing working, maintainable code that delights its users.",
-        price: 5200,
-        originalPrice: 6000,
-        stock: 3,
-        badge: "BEST SELLER",
-        publisher: "Addison-Wesley",
-        pubDate: "September 13, 2019",
-        pages: 352,
-        language: "English",
-        coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
-        thumbnails: [
-            "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600"
-        ]
-    },
-    {
-        id: "3",
-        title: "Introduction to Algorithms",
-        author: "Thomas H. Cormen",
-        category: "Programming",
-        isbn: "9780262033848",
-        rating: 4.9,
-        reviewCount: 190,
-        shortDescription: "A comprehensive update of the leading textbook on computer algorithms.",
-        fullDescription: "Some books on algorithms are rigorous but incomplete; others cover masses of material but lack rigor. Introduction to Algorithms uniquely combines rigor and comprehensiveness.",
-        price: 8500,
-        originalPrice: 9500,
-        stock: 0,
-        badge: null,
-        publisher: "MIT Press",
-        pubDate: "April 5, 2022",
-        pages: 1312,
-        language: "English",
-        coverImage: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&q=80&w=600",
-        thumbnails: []
-    }
-];
+
 
 const mockReviewsDatabase = [
     {
@@ -139,37 +70,45 @@ function updateThemeIcon(theme) {
 
 function extractUrlParams() {
     const params = new URLSearchParams(window.location.search);
-    state.bookId = params.get("id") || "1"; // Default to 1 if unspecified
+    state.bookId = params.get("id"); // Default to 1 if unspecified
+
+    if(!state.bookId){
+        showNotFoundState();
+    }
 }
 
 // ==========================================================================
 // REST API Abstraction Layer (Spring Boot Integration Ready)
 // ==========================================================================
+
 function loadBookData() {
     showLoadingState();
 
-    // Simulated REST delay
-    setTimeout(() => {
-        /* Future Integration Points:
-        $.get(`/api/v1/books/${state.bookId}`, function(data) { ... });
-        $.get(`/api/v1/books/${state.bookId}/reviews`, function(reviews) { ... });
-        $.get(`/api/v1/books/${state.bookId}/related`, function(related) { ... });
-        */
+    $.ajax({
+        // FIX: Replaced quotes with backticks for template string evaluation
+        url: `/api/v1/books/${state.bookId}`,
+        type: "GET",
+        contentType: "application/json",
+        success: function(response) {
+            console.log("Book API Response:", response);
 
-        const foundBook = mockBooksDatabase.find(b => b.id === state.bookId);
-
-        if (foundBook) {
-            state.currentBook = foundBook;
-            renderBookDetails(foundBook);
-            renderReviews(mockReviewsDatabase);
-            renderRelatedBooks();
-            showDetailContent();
-        } else {
+            if (response && response.body) {
+                state.currentBook = response.body;
+                renderBookDetails(state.currentBook);
+                renderReviews(mockReviewsDatabase);
+                renderRelatedBooks();
+                showDetailContent();
+            } else {
+                showNotFoundState();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Book API Error:", error);
             showNotFoundState();
+            showToast("Failed to load book details", "info");
         }
-    }, 450);
+    });
 }
-
 // ==========================================================================
 // DOM Renderers
 // ==========================================================================

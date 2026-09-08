@@ -201,7 +201,7 @@ let state = {
     searchQuery: "",
     maxPrice: 10000,
     minRating: 0,
-    stockFilters: { inStock: true, outOfStock: true },
+    stockFilters: {inStock: true, outOfStock: true},
     languages: ["English", "Sinhala", "Tamil"],
     sortBy: "recommended"
 };
@@ -216,6 +216,7 @@ $(document).ready(function () {
     fetchBooksAPI(); // Local initial load
     setupEventListeners();
     category_init();
+    checkLoginStatus();
 });
 
 function initTheme() {
@@ -237,21 +238,59 @@ function updateThemeIcon(theme) {
 // ==========================================================================
 // REST API Abstraction Layer (Spring Boot Integration Points)
 // ==========================================================================
-function fetchBooksAPI(page = 0, size = 12) {
-    showLoading(true);
+// function fetchBooksAPI(page = 0, size = 12) {
+//     showLoading(true);
+//
+//     // Placeholder: Simulate API Network Latency
+//     setTimeout(() => {
+//         /* Future Integration:
+//         $.get(`/api/v1/books?page=${page}&size=${size}`, function(data) {
+//             state.books = data.content;
+//             applyFiltersAndSort();
+//         });
+//         */
+//         state.books = [...sampleBooks];
+//         applyFiltersAndSort();
+//         showLoading(false);
+//     }, 400);
+// }
 
-    // Placeholder: Simulate API Network Latency
-    setTimeout(() => {
-        /* Future Integration:
-        $.get(`/api/v1/books?page=${page}&size=${size}`, function(data) {
-            state.books = data.content;
+function fetchBooksAPI(){
+    showLoading(true);
+    $.ajax({
+        url:"api/v1/books/getAll",
+        type: "GET",
+        success: function (response) {
+
+            console.log("Books API Response:", response);
+
+            if (response.status === 200 && Array.isArray(response.body)) {
+
+                state.books = response.body;
+
+                applyFiltersAndSort();
+
+            } else {
+
+                console.error("Invalid book response:", response);
+
+                state.books = [];
+                applyFiltersAndSort();
+            }
+
+            showLoading(false);
+        },
+
+        error: function (xhr, status, error) {
+
+            console.error("Failed to load books:", error);
+
+            state.books = [];
             applyFiltersAndSort();
-        });
-        */
-        state.books = [...sampleBooks];
-        applyFiltersAndSort();
-        showLoading(false);
-    }, 400);
+
+            showLoading(false);
+        }
+    })
 }
 
 function fetchBookByIdAPI(id) {
@@ -265,13 +304,13 @@ function fetchBookByIdAPI(id) {
 function applyFiltersAndSort() {
     let result = state.books.filter(book => {
         // Search Query Filter
-        const matchesSearch = !state.searchQuery || 
+        const matchesSearch = !state.searchQuery ||
             book.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
             book.author.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
             book.isbn.includes(state.searchQuery);
 
         // Category Filter
-        const matchesCategory = state.selectedCategory === "All" || book.category === state.selectedCategory;
+        const matchesCategory = state.selectedCategory === "All" || book.categoryName === state.selectedCategory;
 
         // Price Filter
         const matchesPrice = book.price <= state.maxPrice;
@@ -349,7 +388,7 @@ function renderGrid() {
                     <img src="${book.coverImage}" alt="${book.title}" loading="lazy">
                 </div>
                 <div class="card-body">
-                    <span class="card-category">${book.category}</span>
+                    <span class="card-category">${book.categoryName}</span>
                     <h3 class="card-title">${book.title}</h3>
                     <p class="card-author">by ${book.author}</p>
                     <div class="card-rating">
@@ -424,9 +463,18 @@ function renderPagination() {
 }
 
 function changePage(newPage) {
+    const totalPages = Math.ceil(
+        state.filteredBooks.length / state.pageSize
+    );
+
+    if (newPage < 1 || newPage > totalPages) {
+        return;
+    }
+
+
     state.currentPage = newPage;
     renderGrid();
-    $('html, body').animate({ scrollTop: $('#book-grid').offset().top - 100 }, 'fast');
+    $('html, body').animate({scrollTop: $('#book-grid').offset().top - 100}, 'fast');
 }
 
 function showLoading(isLoading) {
@@ -453,7 +501,7 @@ function setupEventListeners() {
     });
 
     // Mobile Navigation & Search
-    $('#mobile-menu-btn').on('click', function() {
+    $('#mobile-menu-btn').on('click', function () {
         $('#mobile-nav').slideToggle();
     });
 
@@ -500,13 +548,15 @@ function setupEventListeners() {
     $('#apply-filters-btn').on('click', function () {
         // Rating
         state.minRating = parseFloat($('input[name="rating"]:checked').val()) || 0;
-        
+
         // Availability
         state.stockFilters.inStock = $('#stock-in').is(':checked');
         state.stockFilters.outOfStock = $('#stock-out').is(':checked');
 
         // Languages
-        state.languages = $('.lang-filter:checked').map(function() { return $(this).val(); }).get();
+        state.languages = $('.lang-filter:checked').map(function () {
+            return $(this).val();
+        }).get();
 
         applyFiltersAndSort();
         $('#sidebar-filters').removeClass('open');
@@ -531,14 +581,14 @@ function setupEventListeners() {
         $('#ai-chat-popup').hide();
     });
 
-    $('.ai-suggestion-chip').on('click', function() {
+    $('.ai-suggestion-chip').on('click', function () {
         const query = $(this).text();
         handleAISend(query);
     });
 
-    $('#ai-send-btn').on('click', function() {
+    $('#ai-send-btn').on('click', function () {
         const query = $('#ai-input').val();
-        if(query) handleAISend(query);
+        if (query) handleAISend(query);
     });
 }
 
@@ -555,7 +605,7 @@ function resetFilters() {
     state.selectedCategory = "All";
     state.maxPrice = 10000;
     state.minRating = 0;
-    state.stockFilters = { inStock: true, outOfStock: true };
+    state.stockFilters = {inStock: true, outOfStock: true};
     state.languages = ["English", "Sinhala", "Tamil"];
     state.sortBy = "recommended";
 
@@ -595,7 +645,9 @@ function showToast(message, type = 'info') {
     const toast = $(`<div class="toast ${type}"><i class="fa-solid fa-circle-check"></i> ${message}</div>`);
     $('#toast-container').append(toast);
     setTimeout(() => {
-        toast.fadeOut(300, function() { $(this).remove(); });
+        toast.fadeOut(300, function () {
+            $(this).remove();
+        });
     }, 3000);
 }
 
@@ -606,7 +658,7 @@ function handleAISend(text) {
     const body = $('#ai-chat-body');
     body.append(`<div class="ai-message user-message">${text}</div>`);
     $('#ai-input').val('');
-    
+
     body.scrollTop(body[0].scrollHeight);
 
     // Mock response handler mapping
@@ -674,4 +726,20 @@ function category_init() {
             `);
         }
     });
+}
+
+
+function checkLoginStatus() {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+
+        $('#login-btn').hide();
+        $('#logout-btn').show();
+    } else {
+
+        $('#login-btn').show()
+
+        $('#logout-btn').hide();
+    }
 }
