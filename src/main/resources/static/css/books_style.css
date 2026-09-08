@@ -1066,3 +1066,17 @@ button, input, select {
     /*border: 1px solid #ccc; !* optional: just to visualize the box *!*/
     padding: 5px;
 }
+
+/* Category Loader Styles */
+.category-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    color: var(--text-muted, #718096);
+    font-size: 0.9rem;
+}
+
+.category-loading i {
+    color: var(--primary-color, #007bff);
+}

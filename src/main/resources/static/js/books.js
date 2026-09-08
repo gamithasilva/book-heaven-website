@@ -206,7 +206,7 @@ let state = {
     sortBy: "recommended"
 };
 
-const categories = [];
+let categories = [];
 
 // ==========================================================================
 // Initialization and Theme Engine
@@ -215,6 +215,7 @@ $(document).ready(function () {
     initTheme();
     fetchBooksAPI(); // Local initial load
     setupEventListeners();
+    category_init();
 });
 
 function initTheme() {
@@ -231,6 +232,7 @@ function updateThemeIcon(theme) {
         icon.removeClass('fa-sun').addClass('fa-moon');
     }
 }
+
 
 // ==========================================================================
 // REST API Abstraction Layer (Spring Boot Integration Points)
@@ -623,4 +625,53 @@ function handleAISend(text) {
         body.append(`<div class="ai-message bot-message">${botResponse}</div>`);
         body.scrollTop(body[0].scrollHeight);
     }, 600);
+}
+
+
+function category_init() {
+    const $categoryList = $("#category-list");
+
+    // 1. Show Loading State immediately
+    $categoryList.html(`
+        <li class="category-loading">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading categories...
+        </li>
+    `);
+
+    $.ajax({
+        url: "api/v1/category/getAll",
+        type: "GET",
+        success: function (data) {
+            categories = data.body;
+
+            if (!Array.isArray(categories)) {
+                console.error("Expected array in body, received:", categories);
+                $categoryList.html('<li><a href="#" class="active" data-category="All">All Books</a></li>');
+                return;
+            }
+
+            // 2. Clear loading state & add default "All Books"
+            $categoryList.empty();
+            $categoryList.append('<li><a href="#" class="active" data-category="All">All Books</a></li>');
+
+            // 3. Render fetched categories
+            categories.forEach(category => {
+                if (!category.status || category.status === 'ACTIVE') {
+                    $categoryList.append(`
+                        <li>
+                            <a href="#" data-category="${category.name}">${category.name}</a>
+                        </li>
+                    `);
+                }
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error("Failed to load categories:", error);
+            // Error fallback UI
+            $categoryList.html(`
+                <li><a href="#" class="active" data-category="All">All Books</a></li>
+                <li style="color: #e74c3c; font-size: 0.85rem; padding: 5px 10px;">Failed to load categories</li>
+            `);
+        }
+    });
 }
