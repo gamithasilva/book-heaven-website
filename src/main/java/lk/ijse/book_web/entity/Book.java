@@ -86,4 +86,7 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "book")
+    private List<WishlistItem> wishlistItems = new ArrayList<>();
+
 }

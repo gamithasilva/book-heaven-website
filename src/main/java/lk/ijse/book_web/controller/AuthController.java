@@ -4,9 +4,12 @@ import lk.ijse.book_web.dto.CommonResponse;
 import lk.ijse.book_web.dto.LoginRequest;
 import lk.ijse.book_web.dto.RegisterRequest;
 import lk.ijse.book_web.dto.UserDataDTO;
+import lk.ijse.book_web.exception.CustomException;
 import lk.ijse.book_web.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,4 +50,16 @@ public class AuthController {
                 )
         );
     }
+
+    @GetMapping
+    public String getCurrentUsername(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated()) {
+            throw  new CustomException( 401,"user is not authenticated");
+        }
+
+        return authentication.getName();
+    }
+
+
 }

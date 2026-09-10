@@ -1,7 +1,9 @@
 package lk.ijse.book_web.controller;
 
 import lk.ijse.book_web.dto.CommonResponse;
+import lk.ijse.book_web.entity.Customer;
 import lk.ijse.book_web.service.BookService;
+import lk.ijse.book_web.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private final BookService bookService;
+    private final ReviewService reviewService;
+
 
     @GetMapping("/getAll")
     public CommonResponse getAllBooks() {
@@ -23,7 +27,11 @@ public class BookController {
 
     @GetMapping("/{id}")
     public CommonResponse getBookDetails(@PathVariable("id") Long id) {
+
+        reviewService.updateReviewRating(id);
         return new CommonResponse(200, bookService.getBookById(id), "OPERATION SUCCESS");
+
+
     }
 
 

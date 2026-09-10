@@ -235,26 +235,6 @@ function updateThemeIcon(theme) {
 }
 
 
-// ==========================================================================
-// REST API Abstraction Layer (Spring Boot Integration Points)
-// ==========================================================================
-// function fetchBooksAPI(page = 0, size = 12) {
-//     showLoading(true);
-//
-//     // Placeholder: Simulate API Network Latency
-//     setTimeout(() => {
-//         /* Future Integration:
-//         $.get(`/api/v1/books?page=${page}&size=${size}`, function(data) {
-//             state.books = data.content;
-//             applyFiltersAndSort();
-//         });
-//         */
-//         state.books = [...sampleBooks];
-//         applyFiltersAndSort();
-//         showLoading(false);
-//     }, 400);
-// }
-
 function fetchBooksAPI(){
     showLoading(true);
     $.ajax({
@@ -294,7 +274,7 @@ function fetchBooksAPI(){
 }
 
 function fetchBookByIdAPI(id) {
-    // GET /api/v1/books/{id}
+
     window.location.href = `book-details.html?id=${id}`;
 }
 
@@ -733,13 +713,15 @@ function checkLoginStatus() {
     const token = localStorage.getItem("token");
 
     if (token) {
-
+        $('#register-btn').hide();
         $('#login-btn').hide();
         $('#logout-btn').show();
+        $('#profile-btn').show();
     } else {
 
         $('#login-btn').show()
-
+        $('#register-btn').show();
         $('#logout-btn').hide();
+        $('#profile-btn').hide();
     }
 }

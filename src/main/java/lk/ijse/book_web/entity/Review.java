@@ -38,9 +38,9 @@ public class Review {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReviewStatus status;
+    private ReviewStatus status = ReviewStatus.VISIBLE;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

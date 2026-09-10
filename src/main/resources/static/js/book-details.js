@@ -6,7 +6,76 @@
 // ==========================================================================
 // Static Mock Repository (Fallback data mimicking Spring Boot REST Payload)
 // ==========================================================================
-
+const mockBooksDatabase = [
+    {
+        id: "1",
+        title: "Clean Code",
+        author: "Robert C. Martin",
+        category: "Programming",
+        isbn: "9780132350884",
+        rating: 4.8,
+        reviewCount: 245,
+        shortDescription: "A handbook of agile software craftsmanship that teaches practical principles for writing clean, maintainable code.",
+        fullDescription: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn't have to be that way. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. The third part is the payoff: a single chapter containing the list of heuristics and 'smells' gathered while creating the case studies.",
+        price: 4500,
+        originalPrice: 5000,
+        stock: 15,
+        badge: "20% OFF",
+        publisher: "Prentice Hall",
+        pubDate: "August 1, 2008",
+        pages: 464,
+        language: "English",
+        coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
+        thumbnails: [
+            "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
+            "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600"
+        ]
+    },
+    {
+        id: "2",
+        title: "The Pragmatic Programmer",
+        author: "Andrew Hunt & David Thomas",
+        category: "Programming",
+        isbn: "9780135957059",
+        rating: 4.9,
+        reviewCount: 310,
+        shortDescription: "Your journey to mastery in software development, covering career development to architectural choices.",
+        fullDescription: "The Pragmatic Programmer cuts through the increasing specialization and technicalities of modern software development to examine the core process--taking a requirement and producing working, maintainable code that delights its users.",
+        price: 5200,
+        originalPrice: 6000,
+        stock: 3,
+        badge: "BEST SELLER",
+        publisher: "Addison-Wesley",
+        pubDate: "September 13, 2019",
+        pages: 352,
+        language: "English",
+        coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
+        thumbnails: [
+            "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600"
+        ]
+    },
+    {
+        id: "3",
+        title: "Introduction to Algorithms",
+        author: "Thomas H. Cormen",
+        category: "Programming",
+        isbn: "9780262033848",
+        rating: 4.9,
+        reviewCount: 190,
+        shortDescription: "A comprehensive update of the leading textbook on computer algorithms.",
+        fullDescription: "Some books on algorithms are rigorous but incomplete; others cover masses of material but lack rigor. Introduction to Algorithms uniquely combines rigor and comprehensiveness.",
+        price: 8500,
+        originalPrice: 9500,
+        stock: 0,
+        badge: null,
+        publisher: "MIT Press",
+        pubDate: "April 5, 2022",
+        pages: 1312,
+        language: "English",
+        coverImage: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&q=80&w=600",
+        thumbnails: []
+    }
+];
 
 const mockReviewsDatabase = [
     {
@@ -32,13 +101,14 @@ const mockReviewsDatabase = [
     }
 ];
 
+
 // Page Local State
 let state = {
     bookId: null,
     currentBook: null,
     selectedQuantity: 1,
     isWishlisted: false,
-    isLoggedIn: false, // Simulated user auth state
+    isLoggedIn: false,
     cart: [],
     wishlist: []
 };
@@ -51,6 +121,7 @@ $(document).ready(function () {
     extractUrlParams();
     setupEventListeners();
     loadBookData();
+    state.isLoggedIn = checkLoginState();
 });
 
 function initTheme() {
@@ -95,7 +166,8 @@ function loadBookData() {
             if (response && response.body) {
                 state.currentBook = response.body;
                 renderBookDetails(state.currentBook);
-                renderReviews(mockReviewsDatabase);
+             //   renderReviews(mockReviewsDatabase);
+                loadReviews();
                 renderRelatedBooks();
                 showDetailContent();
             } else {
@@ -106,6 +178,37 @@ function loadBookData() {
             console.error("Book API Error:", error);
             showNotFoundState();
             showToast("Failed to load book details", "info");
+        }
+    });
+}
+
+function loadReviews() {
+
+    $.ajax({
+        url: `/api/v1/books/${state.bookId}/reviews`,
+        type: "GET",
+        contentType: "application/json",
+
+        success: function(response) {
+
+            console.log("Reviews API Response:", response);
+
+            if (response && response.body && Array.isArray(response.body)) {
+                const reviews = response.body;
+                renderRatingBreakdown(reviews)
+                renderReviews(reviews);
+
+            } else {
+
+                renderReviews([]);
+
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Reviews API Error:", error);
+            // Don't break the book page if reviews fail
+            renderReviews([]);
+            showToast("Failed to load reviews", "info");
         }
     });
 }
@@ -142,7 +245,7 @@ function renderBookDetails(book) {
     // Right Info
     $('#book-title').text(book.title);
     $('#book-author').text(book.author);
-    $('#book-category').text(book.category);
+    $('#book-category').text(book.categoryName);
     $('#book-isbn').text(book.isbn);
     $('#book-stars').html(renderStars(book.rating));
     $('#book-rating-num').text(book.rating.toFixed(1));
@@ -169,7 +272,7 @@ function renderBookDetails(book) {
     updateSubtotal();
 
     // Tab Contents
-    $('#full-description-text').text(book.fullDescription);
+    $('#full-description-text').text(book.description);
     $('#table-title').text(book.title);
     $('#table-author').text(book.author);
     $('#table-isbn').text(book.isbn);
@@ -177,7 +280,7 @@ function renderBookDetails(book) {
     $('#table-pub-date').text(book.pubDate || 'N/A');
     $('#table-pages').text(book.pages || 'N/A');
     $('#table-language').text(book.language || 'English');
-    $('#table-category').text(book.category);
+    $('#table-category').text(book.categoryName);
 
     // Social Sharing Links setup
     const currentUrl = encodeURIComponent(window.location.href);
@@ -216,14 +319,14 @@ function renderReviews(reviews) {
     $('#summary-stars').html(renderStars(state.currentBook.rating));
 
     // Ratings breakdown simulation
-    const breakdownHTML = `
-        <div class="breakdown-row"><span class="star-label">5 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div><span class="percent-label">80%</span></div>
-        <div class="breakdown-row"><span class="star-label">4 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 15%;"></div></div><span class="percent-label">15%</span></div>
-        <div class="breakdown-row"><span class="star-label">3 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 3%;"></div></div><span class="percent-label">3%</span></div>
-        <div class="breakdown-row"><span class="star-label">2 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
-        <div class="breakdown-row"><span class="star-label">1 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
-    `;
-    $('#rating-breakdown-container').html(breakdownHTML);
+    // const breakdownHTML = `
+    //     <div class="breakdown-row"><span class="star-label">5 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div><span class="percent-label">80%</span></div>
+    //     <div class="breakdown-row"><span class="star-label">4 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 15%;"></div></div><span class="percent-label">15%</span></div>
+    //     <div class="breakdown-row"><span class="star-label">3 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 3%;"></div></div><span class="percent-label">3%</span></div>
+    //     <div class="breakdown-row"><span class="star-label">2 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
+    //     <div class="breakdown-row"><span class="star-label">1 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
+    // `;
+    // $('#rating-breakdown-container').html(breakdownHTML);
 
     // List Rendering
     const listContainer = $('#reviews-list-container').empty();
@@ -231,8 +334,8 @@ function renderReviews(reviews) {
         listContainer.append(`
             <div class="review-card">
                 <div class="review-header">
-                    <span class="reviewer-name">${rev.author}</span>
-                    <span class="review-date">${rev.date}</span>
+                    <span class="reviewer-name">${rev.customerName}</span>
+                    <span class="review-date">${formatReviewDate(rev.createdAt)}</span>
                 </div>
                 <div class="stars" style="margin-bottom: 0.4rem;">${renderStars(rev.rating)}</div>
                 <p class="review-comment">"${rev.comment}"</p>
@@ -294,6 +397,77 @@ function renderStars(rating) {
     return stars;
 }
 
+
+function renderRatingBreakdown(reviews) {
+
+    const starCounts = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0
+    };
+
+    reviews.forEach(review => {
+
+        const rating = Number(review.rating);
+
+        let star;
+
+        if (rating >= 0 && rating < 1) {
+            star = 1;
+        } else if (rating >= 1 && rating < 2) {
+            star = 2;
+        } else if (rating >= 2 && rating < 3) {
+            star = 3;
+        } else if (rating >= 3 && rating < 4) {
+            star = 4;
+        } else if (rating >= 4 && rating <= 5) {
+            star = 5;
+        }
+
+        if (star) {
+            starCounts[star]++;
+        }
+    });
+
+    const totalReviews = reviews.length;
+
+    let breakdownHTML = '';
+
+    for (let star = 5; star >= 1; star--) {
+
+        const count = starCounts[star];
+
+        const percentage = totalReviews > 0
+            ? (count / totalReviews) * 100
+            : 0;
+
+        breakdownHTML += `
+            <div class="breakdown-row">
+
+                <span class="star-label">
+                    ${star}
+                    <i class="fa-solid fa-star stars"></i>
+                </span>
+
+                <div class="progress-bar">
+                    <div 
+                        class="progress-fill"
+                        style="width: ${percentage}%;">
+                    </div>
+                </div>
+
+                <span class="percent-label">
+                    ${Math.round(percentage)}%
+                </span>
+
+            </div>
+        `;
+    }
+
+    $('#rating-breakdown-container').html(breakdownHTML);
+}
 // ==========================================================================
 // View State Switchers
 // ==========================================================================
@@ -406,30 +580,85 @@ function setupEventListeners() {
             return;
         }
 
-        /* Spring Boot REST API Endpoint:
+        if(!comment){
+            showToast('Please enter review')
+            return;
+        }
+
+        const reviewData = {
+            rating : parseInt(rating),
+            comment : comment
+        };
+
+        console.log("Sending review", reviewData);
+
         $.ajax({
-            url: `/api/v1/books/${state.bookId}/reviews`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ rating: rating, comment: comment }),
-            success: function(response) { ... }
-        });
-        */
+            url : `/api/v1/books/${state.bookId}/reviews`,
+            type : "POST",
+            contentType: "application/json",
+            data: JSON.stringify(reviewData),
+            headers : {
+                "Authorization" : "Bearer " + localStorage.getItem("token")
+            },
+            success : function (response) {
+                showToast(
+                    "Your review has been submitted successfully!",
+                    "success"
+                );
 
-        // Local UI update simulation
-        mockReviewsDatabase.unshift({
-            id: Date.now(),
-            author: "Current User",
-            rating: parseInt(rating),
-            comment: comment,
-            date: "Just Now"
-        });
+                // Clear form
+                $("#review-form")[0].reset();
 
-        renderReviews(mockReviewsDatabase);
-        $('#review-comment').val('');
-        $('input[name="userRating"]').prop('checked', false);
-        showToast('Thank you! Your review has been submitted.', 'success');
-    });
+                loadReviews();
+
+                loadBookData();
+
+            },
+            error: function (xhr){
+                if (xhr.status === 401) {
+
+                    showToast(
+                        "Please login to write a review",
+                        "error"
+                    );
+
+                } else if (xhr.status === 409) {
+
+                    showToast(
+                        "You have already reviewed this book",
+                        "error"
+                    );
+
+                } else if (xhr.status === 404) {
+
+                    showToast(
+                        "Book or customer not found",
+                        "error"
+                    );
+
+                } else {
+
+                    showToast(
+                        "Failed to submit review",
+                        "error"
+                    );
+                }
+            }
+        })
+    //     // Local UI update simulation
+    //     mockReviewsDatabase.unshift({
+    //         id: Date.now(),
+    //         author: "Current User",
+    //         rating: parseInt(rating),
+    //         comment: comment,
+    //         date: "Just Now"
+    //     });
+    //
+    //     renderReviews(mockReviewsDatabase);
+    //     $('#review-comment').val('');
+    //     $('input[name="userRating"]').prop('checked', false);
+    //     showToast('Thank you! Your review has been submitted.', 'success');
+         });
 
     // Login Prompt Simulators
     $('#login-btn, #prompt-login-btn').on('click', function (e) {
@@ -499,10 +728,58 @@ function handleAIChatSend(text) {
         } else if (lower.includes('similar') || lower.includes('recommend')) {
             response = `If you like ${bookTitle}, you might also enjoy 'The Pragmatic Programmer' or 'Effective Java'.`;
         } else if (lower.includes('cheaper') || lower.includes('alternative')) {
-            response = `For budget-friendly options in ${state.currentBook ? state.currentBook.category : 'this genre'}, check out 'The Alchemist' or '1984'.`;
+            response = `For budget-friendly options in ${state.currentBook ? state.currentBook.categoryName : 'this genre'}, check out 'The Alchemist' or '1984'.`;
         }
 
         body.append(`<div class="ai-message bot-message">${response}</div>`);
         body.scrollTop(body[0].scrollHeight);
     }, 500);
+}
+
+function formatReviewDate(dateString) {
+    const reviewDate = new Date(dateString);
+    const now = new Date();
+
+    // Remove time and compare only dates
+    const reviewDay = new Date(
+        reviewDate.getFullYear(),
+        reviewDate.getMonth(),
+        reviewDate.getDate()
+    );
+
+    const today = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+    );
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    // Today → show time
+    if (reviewDay.getTime() === today.getTime()) {
+        return reviewDate.toLocaleTimeString([], {
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+    }
+
+    // Yesterday
+    if (reviewDay.getTime() === yesterday.getTime()) {
+        return "Yesterday";
+    }
+
+    // Older → show date
+    return reviewDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function checkLoginState(){
+
+    const token = localStorage.getItem("token")
+    return !!token;
+
 }

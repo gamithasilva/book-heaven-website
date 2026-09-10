@@ -113,11 +113,13 @@ $(document).ready(function() {
             $('#register-btn').hide();
             $('#login-btn').hide();
             $('#logout-btn').show();
+            $('#profile-btn').show();
         }else {
 
             $('#login-btn').show()
             $('#register-btn').show();
             $('#logout-btn').hide();
+            $('#profile-btn').hide();
         }
     }
 
@@ -219,36 +221,36 @@ $(document).ready(function() {
         renderBooks(filtered);
     });
 
-    // --- 4. Wishlist & Cart Functionality ---
-    $(document).on('click', '.wishlist-btn', function() {
-        const $icon = $(this).find('i');
-        $(this).toggleClass('active');
-
-        if ($(this).hasClass('active')) {
-            $icon.removeClass('fa-regular').addClass('fa-solid');
-            wishlistCount++;
-            showToast('Added to Wishlist!');
-        } else {
-            $icon.removeClass('fa-solid').addClass('fa-regular');
-            wishlistCount = Math.max(0, wishlistCount - 1);
-            showToast('Removed from Wishlist.');
-        }
-        $('#wishlist-badge').text(wishlistCount);
-    });
-
-    $(document).on('click', '.add-to-cart-btn', function() {
-        cartCount++;
-        $('#cart-badge').text(cartCount);
-        showToast('Book added to cart!');
-    });
-
-    function showToast(message) {
-        $('#toast-message').text(message);
-        $('#toast').removeClass('hidden');
-        setTimeout(() => {
-            $('#toast').addClass('hidden');
-        }, 2500);
-    }
+    // // --- 4. Wishlist & Cart Functionality ---
+    // $(document).on('click', '.wishlist-btn', function() {
+    //     const $icon = $(this).find('i');
+    //     $(this).toggleClass('active');
+    //
+    //     if ($(this).hasClass('active')) {
+    //         $icon.removeClass('fa-regular').addClass('fa-solid');
+    //         wishlistCount++;
+    //         showToast('Added to Wishlist!');
+    //     } else {
+    //         $icon.removeClass('fa-solid').addClass('fa-regular');
+    //         wishlistCount = Math.max(0, wishlistCount - 1);
+    //         showToast('Removed from Wishlist.');
+    //     }
+    //     $('#wishlist-badge').text(wishlistCount);
+    // });
+    //
+    // $(document).on('click', '.add-to-cart-btn', function() {
+    //     cartCount++;
+    //     $('#cart-badge').text(cartCount);
+    //     showToast('Book added to cart!');
+    // });
+    //
+    // function showToast(message) {
+    //     $('#toast-message').text(message);
+    //     $('#toast').removeClass('hidden');
+    //     setTimeout(() => {
+    //         $('#toast').addClass('hidden');
+    //     }, 2500);
+    // }
 
     // --- 5. Category Navigation ---
     $('.category-card').on('click', function() {
@@ -292,6 +294,15 @@ $(document).ready(function() {
             $(this)[0].reset();
         }
     });
+
+    // --- Toast Notification for Newsletter ---
+    function showToast(message) {
+        $('#toast-message').text(message);
+        $('#toast').removeClass('hidden');
+        setTimeout(() => {
+            $('#toast').addClass('hidden');
+        }, 2500);
+    }
 
     // --- 8. AI Chat Assistant Widget ---
     $('#ai-toggle-btn').on('click', function() {
@@ -349,4 +360,120 @@ $(document).ready(function() {
         }
     }
 });
+
+
+//  Check whether user is logged in
+    function isUserLoggedIn() {
+        const token = localStorage.getItem("token");
+        return token !== null && token !== "";
+    }
+
+    $('#logout-btn').on('click', function(){
+        if (isUserLoggedIn()){
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+
+            checkLoginStatus();
+            showToast('Logged out successfully!');
+        }
+    });
+
+// --- Protect Header Cart & Wishlist ---
+
+$('#cart-btn, #wishlist-btn, #profile-btn').on('click', function(e) {
+
+    if (!isUserLoggedIn()) {
+
+        e.preventDefault();
+
+        showToast('Please log in first.');
+
+        return;
+    }
+});
+
+
+// --- Wishlist Button ---
+
+$(document).on('click', '.wishlist-btn', function(e) {
+
+    // User is not logged in
+    if (!isUserLoggedIn()) {
+
+        e.preventDefault();
+
+        showToast('Please log in first.');
+
+        return;
+    }
+
+    const $button = $(this);
+    const $icon = $button.find('i');
+
+    $button.toggleClass('active');
+
+    if ($button.hasClass('active')) {
+
+        $icon
+            .removeClass('fa-regular')
+            .addClass('fa-solid');
+
+        wishlistCount++;
+
+        showToast('Added to Wishlist!');
+
+    } else {
+
+        $icon
+            .removeClass('fa-solid')
+            .addClass('fa-regular');
+
+        wishlistCount = Math.max(0, wishlistCount - 1);
+
+        showToast('Removed from Wishlist.');
+    }
+
+    $('#wishlist-badge').text(wishlistCount);
+});
+
+
+// --- Add To Cart Button ---
+
+$(document).on('click', '.add-to-cart-btn', function(e) {
+
+    // User is not logged in
+    if (!isUserLoggedIn()) {
+
+        e.preventDefault();
+
+        showToast('Please log in first.');
+
+        return;
+    }
+
+    cartCount++;
+
+    $('#cart-badge').text(cartCount);
+
+    showToast('Book added to cart!');
+});
+
+
+// --- Toast Notification ---
+
+function showToast(message) {
+
+    $('#toast-message').text(message);
+
+    $('#toast').removeClass('hidden');
+
+    setTimeout(function() {
+
+        $('#toast').addClass('hidden');
+
+    }, 2500);
+}
+
 

@@ -63,4 +63,7 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer")
     private List<AIConversation> conversations = new ArrayList<>();
+
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private Wishlist wishlist;
 }

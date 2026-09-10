@@ -302,14 +302,21 @@ $(document).ready(function() {
                         localStorage.setItem("username", user.email);
                         localStorage.setItem("role", user.role);
 
-                        console.log(localStorage.getItem("token"));
+                        showToast('Account created successfully! ');
+
+                        setTimeout(function () {
+
+                            window.location.href =
+                                "index.html";
+
+                        }, 1000);
 
 
 
                     }
                 }
             })
-            showToast('Account created successfully! Switching to login...');
+
 
             // // Transition to Login Tab on successful creation
             // setTimeout(() => {
@@ -317,12 +324,7 @@ $(document).ready(function() {
             //     $('#login-email').val(email);
             // }, 1800);
 
-            setTimeout(function () {
 
-                window.location.href =
-                    "index.html";
-
-            }, 1000);
         }
     });
 
