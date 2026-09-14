@@ -120,8 +120,9 @@ $(document).ready(function () {
     initTheme();
     extractUrlParams();
     setupEventListeners();
-    loadBookData();
     state.isLoggedIn = checkLoginState();
+    loadBookData();
+
 });
 
 function initTheme() {
@@ -170,6 +171,8 @@ function loadBookData() {
                 loadReviews();
                 renderRelatedBooks();
                 showDetailContent();
+
+                loadWishlist();
             } else {
                 showNotFoundState();
             }
@@ -544,30 +547,53 @@ function setupEventListeners() {
         window.location.href = `checkout.html?buyNowId=${state.currentBook.id}&qty=${state.selectedQuantity}`;
     });
 
+    // $('#wishlist-toggle-btn').on('click', function () {
+    //     state.isWishlisted = !state.isWishlisted;
+    //     const icon = $(this).find('i');
+    //
+    //     if (state.isWishlisted) {
+    //         $(this).addClass('active');
+    //         icon.removeClass('fa-regular').addClass('fa-solid');
+    //         state.wishlist.push(state.currentBook.id);
+    //         showToast(`Added "${state.currentBook.title}" to wishlist!`, 'success');
+    //     } else {
+    //         $(this).removeClass('active');
+    //         icon.removeClass('fa-solid').addClass('fa-regular');
+    //         state.wishlist = state.wishlist.filter(id => id !== state.currentBook.id);
+    //         showToast(`Removed from wishlist`, 'info');
+    //     }
+    //     $('#wishlist-badge').text(state.wishlist.length);
+    // });
+
     $('#wishlist-toggle-btn').on('click', function () {
-        state.isWishlisted = !state.isWishlisted;
-        const icon = $(this).find('i');
-        
-        if (state.isWishlisted) {
-            $(this).addClass('active');
-            icon.removeClass('fa-regular').addClass('fa-solid');
-            state.wishlist.push(state.currentBook.id);
-            showToast(`Added "${state.currentBook.title}" to wishlist!`, 'success');
-        } else {
-            $(this).removeClass('active');
-            icon.removeClass('fa-solid').addClass('fa-regular');
-            state.wishlist = state.wishlist.filter(id => id !== state.currentBook.id);
-            showToast(`Removed from wishlist`, 'info');
+
+        const token = localStorage.getItem("token");
+
+        // Not logged in
+        if (!token) {
+            showToast("Please login first!", "info");
+            return;
         }
-        $('#wishlist-badge').text(state.wishlist.length);
+
+        // Safety check
+        if (!state.currentBook) {
+            showToast("Book information is not available.", "error");
+            return;
+        }
+
+        const bookId = state.currentBook.id;
+
+        if (state.isWishlisted) {
+            removeFromWishlist(bookId);
+        } else {
+            addToWishlist(bookId);
+        }
     });
 
-    // Social Copy Link
-    $('#copy-link-btn').on('click', function () {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            showToast('Book link copied!', 'success');
-        });
-    });
+    // ============================================================
+// Wishlist API
+// ============================================================
+
 
     // Review Form Submission (Prepare POST /api/v1/books/{bookId}/reviews)
     $('#review-form').on('submit', function (e) {
@@ -783,3 +809,223 @@ function checkLoginState(){
     return !!token;
 
 }
+
+function addToWishlist(bookId) {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        showToast("Please login first!", "info");
+        return;
+    }
+
+    $.ajax({
+        url: `/api/v1/wishlist/items/${bookId}`,
+        type: "POST",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+
+        success: function (response) {
+
+            console.log("Add Wishlist Response:", response);
+
+            state.isWishlisted = true;
+
+            if (!state.wishlist.includes(bookId)) {
+                state.wishlist.push(bookId);
+            }
+
+            updateWishlistButton();
+            updateWishlistBadge();
+
+            showToast(
+                `"${state.currentBook.title}" added to wishlist!`,
+                "success"
+            );
+        },
+
+        error: function (xhr) {
+
+            console.error("Add wishlist error:", xhr);
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Please login first!", "info");
+            }
+            else if (xhr.status === 409) {
+                showToast("Book is already in your wishlist.", "info");
+            }
+            else {
+                showToast(
+                    "Failed to add book to wishlist.",
+                    "error"
+                );
+            }
+        }
+    });
+}
+
+
+function removeFromWishlist(bookId) {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        showToast("Please login first!", "info");
+        return;
+    }
+
+    $.ajax({
+        url: `/api/v1/wishlist/items/${bookId}`,
+        type: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+
+        success: function (response) {
+
+            console.log("Remove Wishlist Response:", response);
+
+            state.isWishlisted = false;
+
+            state.wishlist = state.wishlist.filter(
+                id => String(id) !== String(bookId)
+            );
+
+            updateWishlistButton();
+            updateWishlistBadge();
+
+            showToast(
+                `"${state.currentBook.title}" removed from wishlist.`,
+                "info"
+            );
+        },
+
+        error: function (xhr) {
+
+            console.error("Remove wishlist error:", xhr);
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Please login first!", "info");
+            }
+            else {
+                showToast(
+                    "Failed to remove book from wishlist.",
+                    "error"
+                );
+            }
+        }
+    });
+}
+
+function updateWishlistButton() {
+
+    const button = $('#wishlist-toggle-btn');
+    const icon = button.find('i');
+
+    if (state.isWishlisted) {
+
+        button.addClass('active');
+
+        icon
+            .removeClass('fa-regular')
+            .addClass('fa-solid');
+
+        button.attr('title', 'Remove from Wishlist');
+
+    } else {
+
+        button.removeClass('active');
+
+        icon
+            .removeClass('fa-solid')
+            .addClass('fa-regular');
+
+        button.attr('title', 'Add to Wishlist');
+    }
+}
+
+function loadWishlist() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        state.wishlist = [];
+        state.isWishlisted = false;
+
+        updateWishlistButton();
+        updateWishlistBadge();
+
+        return;
+    }
+
+    $.ajax({
+        url: "/api/v1/wishlist",
+        type: "GET",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+
+        success: function (response) {
+
+            console.log("Wishlist Response:", response);
+
+            const wishlist = response.body;
+
+            const items = wishlist?.wishlistItemDTOS || [];
+
+            state.wishlist = items
+                .map(item => item.bookId)
+                .filter(id => id != null);
+
+            // Check current book
+            if (state.currentBook) {
+
+                state.isWishlisted = state.wishlist.some(
+                    id => String(id) === String(state.currentBook.id)
+                );
+            }
+
+            updateWishlistButton();
+            updateWishlistBadge();
+
+            console.log(
+                "Wishlist IDs:",
+                state.wishlist
+            );
+
+            console.log(
+                "Current book wishlisted:",
+                state.isWishlisted
+            );
+        },
+
+        error: function (xhr) {
+
+            console.error(
+                "Failed to load wishlist:",
+                xhr
+            );
+
+            state.wishlist = [];
+            state.isWishlisted = false;
+
+            updateWishlistButton();
+            updateWishlistBadge();
+        }
+    });
+}
+
+
+function updateWishlistBadge() {
+
+    $('#wishlist-badge').text(
+        state.wishlist.length
+    );
+}
+// Social Copy Link
+$('#copy-link-btn').on('click', function () {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast('Book link copied!', 'success');
+    });
+});

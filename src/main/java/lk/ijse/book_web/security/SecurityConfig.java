@@ -70,6 +70,9 @@ public class SecurityConfig {
                                         "/api/customer/**"
                                 ).hasRole("CUSTOMER")
 
+                                .requestMatchers("/api/v1/wishlist/**")
+                                .hasRole("CUSTOMER")
+
                                 // Manager
                                 .requestMatchers(
                                         "/api/manager/**"
@@ -167,6 +170,7 @@ public class SecurityConfig {
             throws Exception {
 
         return configuration.getAuthenticationManager();
+
     }
 
 }
