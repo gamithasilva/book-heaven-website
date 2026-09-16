@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+    const API_BASE_URL = 'http://localhost:8080/api/auth';
+
     // --- 1. Tab Switching Functionality ---
     $('.tab-btn').on('click', function() {
         const targetFormId = $(this).data('target');
@@ -93,8 +95,7 @@ $(document).ready(function() {
         }
     }
 
-    // --- 5. Form Validation & Submission ---
-
+    // --- 5. Helper Functions ---
     function isValidEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
@@ -126,7 +127,7 @@ $(document).ready(function() {
         }, 3000);
     }
 
-    // Login Form Validation & Action
+    // --- 6. Login Form Handler ---
     $('#login-form').on('submit', function(e) {
         e.preventDefault();
         let isValid = true;
@@ -134,7 +135,6 @@ $(document).ready(function() {
         const email = $('#login-email').val().trim();
         const password = $('#login-password').val();
 
-        // Email validation
         if (!email) {
             showError($('#login-email'), $('#login-email-error'), 'Email address is required.');
             isValid = false;
@@ -145,7 +145,6 @@ $(document).ready(function() {
             clearError($('#login-email'), $('#login-email-error'));
         }
 
-        // Password validation
         if (!password) {
             showError($('#login-password'), $('#login-password-error'), 'Password is required.');
             isValid = false;
@@ -154,47 +153,41 @@ $(document).ready(function() {
         }
 
         if (isValid) {
-            // Prepared Payload for POST /api/v1/auth/login
-            const loginPayload = {
-                email: email,
-                password: password
-            };
+            const loginPayload = { email, password };
 
             $.ajax({
-                url : "http://localhost:8080/api/auth/login",
-                type : "POST",
+                url: `${API_BASE_URL}/login`,
+                type: "POST",
                 contentType: "application/json",
-                data : JSON.stringify(loginPayload),
+                data: JSON.stringify(loginPayload),
+                success: function(response) {
+                    // Extract payload depending on your backend structure
+                    const user = response.body || response;
 
-                success : function(response) {
-                    console.log('Login successful:', response);
-                    if(response.status === 200){
-                        const user = response.body;
-
+                    if (user && user.token) {
                         localStorage.setItem("token", user.token);
                         localStorage.setItem("userId", user.id);
                         localStorage.setItem("username", user.email);
                         localStorage.setItem("role", user.role);
 
-                        console.log(localStorage.getItem("token"));
+                        showToast('Login successful! Redirecting...');
 
-                        console.log('Sending login payload to /api/v1/auth/login:', loginPayload);
-                        showToast('Login successful! Redirecting... ' + localStorage.getItem("token"));
-
-                        // Demo redirect to store homepage
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 1500);
-
-
+                    } else {
+                        showToast('Login failed. Please check your credentials.');
                     }
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Invalid email or password.';
+                    showToast(errorMsg);
                 }
-            })
-
+            });
         }
     });
 
-    // Registration Form Validation & Action
+    // --- 7. Registration Form Handler ---
     $('#register-form').on('submit', function(e) {
         e.preventDefault();
         let isValid = true;
@@ -207,7 +200,6 @@ $(document).ready(function() {
         const confirmPassword = $('#reg-confirm-password').val();
         const termsAccepted = $('#reg-terms').is(':checked');
 
-        // First Name
         if (!firstName) {
             showError($('#reg-first-name'), $('#reg-first-name-error'), 'First name is required.');
             isValid = false;
@@ -215,7 +207,6 @@ $(document).ready(function() {
             clearError($('#reg-first-name'), $('#reg-first-name-error'));
         }
 
-        // Last Name
         if (!lastName) {
             showError($('#reg-last-name'), $('#reg-last-name-error'), 'Last name is required.');
             isValid = false;
@@ -223,7 +214,6 @@ $(document).ready(function() {
             clearError($('#reg-last-name'), $('#reg-last-name-error'));
         }
 
-        // Email
         if (!email) {
             showError($('#reg-email'), $('#reg-email-error'), 'Email address is required.');
             isValid = false;
@@ -234,7 +224,6 @@ $(document).ready(function() {
             clearError($('#reg-email'), $('#reg-email-error'));
         }
 
-        // Phone
         if (!phone) {
             showError($('#reg-phone'), $('#reg-phone-error'), 'Phone number is required.');
             isValid = false;
@@ -245,7 +234,6 @@ $(document).ready(function() {
             clearError($('#reg-phone'), $('#reg-phone-error'));
         }
 
-        // Password
         if (!password) {
             showError($('#reg-password'), $('#reg-password-error'), 'Password is required.');
             isValid = false;
@@ -256,7 +244,6 @@ $(document).ready(function() {
             clearError($('#reg-password'), $('#reg-password-error'));
         }
 
-        // Confirm Password
         if (!confirmPassword) {
             showError($('#reg-confirm-password'), $('#reg-confirm-password-error'), 'Please confirm password.');
             isValid = false;
@@ -267,7 +254,6 @@ $(document).ready(function() {
             clearError($('#reg-confirm-password'), $('#reg-confirm-password-error'));
         }
 
-        // Terms Checkbox
         if (!termsAccepted) {
             $('#reg-terms-error').text('You must agree to the Terms & Conditions.');
             isValid = false;
@@ -276,55 +262,34 @@ $(document).ready(function() {
         }
 
         if (isValid) {
-            // Prepared Payload for POST /api/v1/auth/register
-            const registerPayload = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone,
-                password: password
-            };
-
-            console.log('Sending registration payload to /api/v1/auth/register:', registerPayload);
+            const registerPayload = { firstName, lastName, email, phone, password };
 
             $.ajax({
-                url : "http://localhost:8080/api/auth/register",
-                type : "POST",
+                url: `${API_BASE_URL}/register`,
+                type: "POST",
                 contentType: "application/json",
-                data : JSON.stringify(registerPayload),
-                success : function(response) {
-                    console.log('Registration successful:', response);
-                    if(response.status === 200){
-                        const user = response.body;
+                data: JSON.stringify(registerPayload),
+                success: function(response) {
+                    const user = response.body || response;
 
+                    if (user && user.token) {
                         localStorage.setItem("token", user.token);
                         localStorage.setItem("userId", user.id);
                         localStorage.setItem("username", user.email);
                         localStorage.setItem("role", user.role);
 
-                        showToast('Account created successfully! ');
+                        showToast('Account created successfully!');
 
-                        setTimeout(function () {
-
-                            window.location.href =
-                                "index.html";
-
+                        setTimeout(function() {
+                            window.location.href = "index.html";
                         }, 1000);
-
-
-
                     }
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Registration failed. Please try again.';
+                    showToast(errorMsg);
                 }
-            })
-
-
-            // // Transition to Login Tab on successful creation
-            // setTimeout(() => {
-            //     $('#tab-login').trigger('click');
-            //     $('#login-email').val(email);
-            // }, 1800);
-
-
+            });
         }
     });
 

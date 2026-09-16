@@ -143,6 +143,8 @@ public class AuthServiceImpl implements AuthService{
 
         customerRepository.save(customer);
 
+
+
         return login(
                 new LoginRequest(
                         request.getEmail(),

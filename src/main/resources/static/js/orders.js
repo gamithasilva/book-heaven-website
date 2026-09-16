@@ -1,116 +1,7 @@
 /**
  * BookHaven - Orders Management & Tracking Engine
- * Supports sample data rendering, status indicators, filters/search, 
- * modal details, tracking timelines, order cancellations, and buy-again items.
+ * Integrated with Spring Boot REST API endpoints
  */
-
-// Sample Customer Orders Data Structure
-const initialSampleOrders = [
-    {
-        id: 1,
-        orderNumber: "BH-2026-00125",
-        orderDate: "2026-08-20",
-        status: "SHIPPED", // PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
-        paymentMethod: "CASH_ON_DELIVERY",
-        paymentStatus: "Pending",
-        deliveryDate: "2026-08-24",
-        deliveryAddress: "Kaveesha Silva, 25 Main Street, Colombo 01, Sri Lanka (0771234567)",
-        items: [
-            {
-                bookId: 101,
-                title: "Clean Code",
-                author: "Robert C. Martin",
-                quantity: 1,
-                unitPrice: 4500,
-                coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=200"
-            },
-            {
-                bookId: 102,
-                title: "Atomic Habits",
-                author: "James Clear",
-                quantity: 2,
-                unitPrice: 3000,
-                coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=200"
-            }
-        ],
-        subtotal: 10500,
-        discount: 1000,
-        deliveryFee: 350,
-        total: 9850
-    },
-    {
-        id: 2,
-        orderNumber: "BH-2026-00118",
-        orderDate: "2026-08-15",
-        status: "DELIVERED",
-        paymentMethod: "CREDIT_CARD",
-        paymentStatus: "Paid",
-        deliveryDate: "2026-08-18",
-        deliveryAddress: "Kaveesha Silva, 25 Main Street, Colombo 01, Sri Lanka (0771234567)",
-        items: [
-            {
-                bookId: 103,
-                title: "Design Patterns",
-                author: "Erich Gamma",
-                quantity: 1,
-                unitPrice: 6200,
-                coverImage: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=200"
-            }
-        ],
-        subtotal: 6200,
-        discount: 0,
-        deliveryFee: 350,
-        total: 6550
-    },
-    {
-        id: 3,
-        orderNumber: "BH-2026-00102",
-        orderDate: "2026-08-01",
-        status: "PENDING",
-        paymentMethod: "BANK_TRANSFER",
-        paymentStatus: "Pending",
-        deliveryDate: "2026-08-26",
-        deliveryAddress: "Kaveesha Silva, 100 Business Road, Colombo 03, Sri Lanka (0771234567)",
-        items: [
-            {
-                bookId: 104,
-                title: "The Pragmatic Programmer",
-                author: "Andrew Hunt",
-                quantity: 1,
-                unitPrice: 5500,
-                coverImage: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=200"
-            }
-        ],
-        subtotal: 5500,
-        discount: 500,
-        deliveryFee: 350,
-        total: 5350
-    },
-    {
-        id: 4,
-        orderNumber: "BH-2026-00088",
-        orderDate: "2026-07-10",
-        status: "CANCELLED",
-        paymentMethod: "CREDIT_CARD",
-        paymentStatus: "Refunded",
-        deliveryDate: "-",
-        deliveryAddress: "Kaveesha Silva, 25 Main Street, Colombo 01, Sri Lanka (0771234567)",
-        items: [
-            {
-                bookId: 105,
-                title: "Refactoring",
-                author: "Martin Fowler",
-                quantity: 1,
-                unitPrice: 5800,
-                coverImage: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=200"
-            }
-        ],
-        subtotal: 5800,
-        discount: 0,
-        deliveryFee: 350,
-        total: 6150
-    }
-];
 
 // App State
 let ordersData = [];
@@ -143,43 +34,114 @@ function updateThemeIcon(theme) {
 }
 
 function updateHeaderBadges() {
-    const cart = JSON.parse(localStorage.getItem('bookhaven_cart') || '[]');
-    const wishlist = JSON.parse(localStorage.getItem('bookhaven_wishlist') || '[]');
-    const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
-    $('#cart-badge').text(cartCount);
-    $('#wishlist-badge').text(wishlist.length);
+    loadCartBadgeAPI();
+    loadWishlistBadgeAPI();
+}
+
+function loadCartBadgeAPI() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        $('#cart-badge').text('0');
+        return;
+    }
+
+    $.ajax({
+        url: 'api/customer/cart',
+        type: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token },
+        success: function (response) {
+            if (response.status === 200 && response.body) {
+                const items = response.body.items || [];
+                const totalQty = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                $('#cart-badge').text(totalQty);
+            } else {
+                $('#cart-badge').text('0');
+            }
+        },
+        error: function () {
+            $('#cart-badge').text('0');
+        }
+    });
+}
+
+function loadWishlistBadgeAPI() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        $('#wishlist-badge').text('0');
+        return;
+    }
+
+    $.ajax({
+        url: 'api/v1/wishlist',
+        type: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token },
+        success: function (response) {
+            if (response.status === 200 && response.body) {
+                const items = response.body.wishlistItemDTOS || [];
+                $('#wishlist-badge').text(items.length);
+            } else {
+                $('#wishlist-badge').text('0');
+            }
+        },
+        error: function () {
+            $('#wishlist-badge').text('0');
+        }
+    });
 }
 
 // ==========================================================================
-// API & Data Fetching Simulation
+// API & Data Fetching Engine
 // ==========================================================================
 function loadOrders() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        showToast('Please login to view your orders.', 'info');
+        $('#orders-loading-state').hide();
+        $('#empty-orders-state').fadeIn();
+        return;
+    }
+
     $('#orders-loading-state').show();
     $('#orders-error-state, #empty-orders-state, #orders-list-container, #pagination-container').hide();
 
-    setTimeout(() => {
-        // Retrieve local override orders or fallback to defaults
-        const storedOrders = localStorage.getItem('bookhaven_user_orders');
-        if (storedOrders) {
-            ordersData = JSON.parse(storedOrders);
-        } else {
-            ordersData = [...initialSampleOrders];
-            localStorage.setItem('bookhaven_user_orders', JSON.stringify(ordersData));
-        }
+    $.ajax({
+        url: 'api/customer/orders/my-orders',
+        type: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        success: function (response) {
+            $('#orders-loading-state').hide();
 
-        $('#orders-loading-state').hide();
-        
-        if (ordersData.length === 0) {
-            $('#stats-section').hide();
-            $('#empty-orders-state').fadeIn();
-        } else {
-            $('#stats-section').show();
-            $('#orders-list-container').show();
-            calculateStatistics();
-            applyFiltersAndRender();
+            if (response.status === 200 && Array.isArray(response.body)) {
+                ordersData = response.body;
+
+                if (ordersData.length === 0) {
+                    $('#stats-section').hide();
+                    $('#empty-orders-state').fadeIn();
+                } else {
+                    $('#stats-section').show();
+                    $('#orders-list-container').show();
+                    calculateStatistics();
+                    applyFiltersAndRender();
+                }
+            } else {
+                ordersData = [];
+                $('#empty-orders-state').fadeIn();
+            }
+        },
+        error: function (xhr) {
+            $('#orders-loading-state').hide();
+            console.error('Failed to load orders:', xhr);
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast('Session expired. Please login again.', 'error');
+            } else {
+                $('#orders-error-state').show();
+            }
         }
-    }, 600);
+    });
 }
 
 // ==========================================================================
@@ -212,22 +174,22 @@ function applyFiltersAndRender() {
 
         // Search Match (Order number or book title)
         if (searchVal) {
-            const matchesNum = order.orderNumber.toLowerCase().includes(searchVal);
-            const matchesBook = order.items.some(item => item.title.toLowerCase().includes(searchVal));
+            const matchesNum = order.orderNumber ? order.orderNumber.toLowerCase().includes(searchVal) : false;
+            const matchesBook = order.items ? order.items.some(item => item.bookTitle && item.bookTitle.toLowerCase().includes(searchVal)) : false;
             if (!matchesNum && !matchesBook) return false;
         }
 
         // Date Range Match
-        if (dateVal !== 'ALL') {
+        if (dateVal !== 'ALL' && order.orderDate) {
             const orderDate = new Date(order.orderDate);
-            const now = new Date('2026-08-21'); // Context base date
+            const now = new Date();
             const diffTime = Math.abs(now - orderDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             if (dateVal === '30_DAYS' && diffDays > 30) return false;
             if (dateVal === '3_MONTHS' && diffDays > 90) return false;
             if (dateVal === '6_MONTHS' && diffDays > 180) return false;
-            if (dateVal === 'THIS_YEAR' && orderDate.getFullYear() !== 2026) return false;
+            if (dateVal === 'THIS_YEAR' && orderDate.getFullYear() !== now.getFullYear()) return false;
         }
 
         return true;
@@ -237,8 +199,8 @@ function applyFiltersAndRender() {
     filteredOrders.sort((a, b) => {
         if (sortVal === 'NEWEST') return new Date(b.orderDate) - new Date(a.orderDate);
         if (sortVal === 'OLDEST') return new Date(a.orderDate) - new Date(b.orderDate);
-        if (sortVal === 'HIGHEST') return b.total - a.total;
-        if (sortVal === 'LOWEST') return a.total - b.total;
+        if (sortVal === 'HIGHEST') return (b.total || 0) - (a.total || 0);
+        if (sortVal === 'LOWEST') return (a.total || 0) - (b.total || 0);
         return 0;
     });
 
@@ -265,7 +227,7 @@ function renderOrderCards(orders) {
 
     orders.forEach(order => {
         const statusBadgeHTML = getStatusBadgeHTML(order.status);
-        const bookItemsHTML = renderBookItemsPreview(order.items);
+        const bookItemsHTML = renderBookItemsPreview(order.items || []);
         const isCancelable = (order.status === 'PENDING' || order.status === 'CONFIRMED');
         const isDelivered = (order.status === 'DELIVERED');
 
@@ -285,7 +247,7 @@ function renderOrderCards(orders) {
 
                 <div class="order-footer-row">
                     <div class="order-price-summary-inline">
-                        Total: <strong>Rs. ${order.total.toLocaleString()}</strong>
+                        Total: <strong>Rs. ${(order.total || 0).toLocaleString()}</strong>
                     </div>
                     <div class="order-actions-group">
                         <button class="btn btn-outline btn-sm" onclick="openDetailsModal(${order.id})">
@@ -321,10 +283,10 @@ function renderBookItemsPreview(items) {
 
     let html = displayItems.map(item => `
         <div class="book-preview-item">
-            <img src="${item.coverImage}" alt="${item.title}" class="book-thumb">
+            <img src="${item.coverImage || 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=200'}" alt="${item.bookTitle || 'Book'}" class="book-thumb">
             <div class="book-info">
-                <div class="book-title">${item.title}</div>
-                <div class="book-author">${item.author}</div>
+                <div class="book-title">${item.bookTitle || 'Untitled Book'}</div>
+                <div class="book-author">${item.author || 'Unknown Author'}</div>
             </div>
             <div class="book-qty">Qty: ${item.quantity}</div>
         </div>
@@ -361,9 +323,9 @@ function openTrackingModal(orderId) {
     $('#track-order-num').text(`#${order.orderNumber}`);
 
     if (order.status === 'DELIVERED') {
-        $('#track-eta-text').text(`Delivered on ${formatDate(order.deliveryDate)}`);
+        $('#track-eta-text').text(`Delivered on ${formatDate(order.updatedAt || order.orderDate)}`);
     } else {
-        $('#track-eta-text').text(`Estimated Delivery: ${formatDate(order.deliveryDate)}`);
+        $('#track-eta-text').text(`Order Date: ${formatDate(order.orderDate)}`);
     }
 
     const steps = [
@@ -417,41 +379,41 @@ function openDetailsModal(orderId) {
     $('#modal-order-number').text(order.orderNumber);
     $('#modal-order-date').text(formatDate(order.orderDate));
     $('#modal-order-status').html(getStatusBadgeHTML(order.status));
-    $('#modal-payment-method').text(formatPaymentName(order.paymentMethod));
-    $('#modal-payment-status').text(order.paymentStatus);
-    $('#modal-delivery-address').text(order.deliveryAddress);
+    $('#modal-payment-method').text(formatPaymentName(order.payment ? order.payment.paymentMethod : 'N/A'));
+    $('#modal-payment-status').text(order.payment ? order.payment.paymentStatus : 'Pending');
+    $('#modal-delivery-address').text(order.shippingAddress || 'N/A');
 
     const tbody = $('#modal-items-tbody').empty();
-    order.items.forEach(item => {
-        const itemSubtotal = item.unitPrice * item.quantity;
+    (order.items || []).forEach(item => {
+        const itemSubtotal = item.subtotal || (item.unitPrice * item.quantity);
         tbody.append(`
             <tr>
                 <td>
                     <div class="book-preview-item">
-                        <img src="${item.coverImage}" alt="${item.title}" class="book-thumb">
+                        <img src="${item.coverImage || 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=200'}" alt="${item.bookTitle}" class="book-thumb">
                         <div>
-                            <strong>${item.title}</strong>
-                            <div class="text-sm text-muted">${item.author}</div>
+                            <strong>${item.bookTitle}</strong>
+                            <div class="text-sm text-muted">${item.author || ''}</div>
                         </div>
                     </div>
                 </td>
                 <td>${item.quantity}</td>
-                <td>Rs. ${item.unitPrice.toLocaleString()}</td>
+                <td>Rs. ${(item.unitPrice || 0).toLocaleString()}</td>
                 <td><strong>Rs. ${itemSubtotal.toLocaleString()}</strong></td>
             </tr>
         `);
     });
 
-    $('#modal-summary-subtotal').text(`Rs. ${order.subtotal.toLocaleString()}`);
-    $('#modal-summary-discount').text(`-Rs. ${order.discount.toLocaleString()}`);
-    $('#modal-summary-delivery').text(`Rs. ${order.deliveryFee.toLocaleString()}`);
-    $('#modal-summary-total').text(`Rs. ${order.total.toLocaleString()}`);
+    $('#modal-summary-subtotal').text(`Rs. ${(order.subtotal || 0).toLocaleString()}`);
+    $('#modal-summary-discount').text(`-Rs. ${(order.discount || 0).toLocaleString()}`);
+    $('#modal-summary-delivery').text(`Rs. ${(order.deliveryFee || 0).toLocaleString()}`);
+    $('#modal-summary-total').text(`Rs. ${(order.total || 0).toLocaleString()}`);
 
     $('#details-modal').fadeIn(200);
 }
 
 // ==========================================================================
-// Order Cancellation Engine
+// Order Cancellation Engine (API Call)
 // ==========================================================================
 function openCancelModal(orderId) {
     const order = ordersData.find(o => o.id === orderId);
@@ -465,48 +427,74 @@ function openCancelModal(orderId) {
 function cancelOrder() {
     if (!activeCancelOrderId) return;
 
-    const order = ordersData.find(o => o.id === activeCancelOrderId);
-    if (order) {
-        order.status = 'CANCELLED';
-        localStorage.setItem('bookhaven_user_orders', JSON.stringify(ordersData));
-
-        calculateStatistics();
-        applyFiltersAndRender();
-        showToast(`Order ${order.orderNumber} cancelled successfully.`, 'success');
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please login first!', 'error');
+        return;
     }
 
-    $('#cancel-modal').fadeOut(200);
-    activeCancelOrderId = null;
+    $.ajax({
+        url: `api/customer/orders/${activeCancelOrderId}/cancel`,
+        type: 'PUT',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        success: function (response) {
+            if (response.status === 200) {
+                showToast(response.message || 'Order cancelled successfully.', 'success');
+                loadOrders(); // Refresh order list from backend
+            }
+        },
+        error: function (xhr) {
+            console.error('Failed to cancel order:', xhr);
+            showToast('Failed to cancel order. Please try again.', 'error');
+        },
+        complete: function () {
+            $('#cancel-modal').fadeOut(200);
+            activeCancelOrderId = null;
+        }
+    });
 }
 
 // ==========================================================================
-// Buy Again Cart Re-order Engine
+// Buy Again Cart Re-order Engine (API Call)
 // ==========================================================================
 function buyAgain(orderId) {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        showToast('Please login first!', 'info');
+        return;
+    }
+
     const order = ordersData.find(o => o.id === orderId);
-    if (!order) return;
+    if (!order || !order.items || order.items.length === 0) {
+        showToast('No items found to re-order.', 'error');
+        return;
+    }
 
-    let cart = JSON.parse(localStorage.getItem('bookhaven_cart') || '[]');
-
-    order.items.forEach(orderItem => {
-        const existingIdx = cart.findIndex(c => c.id === orderItem.bookId);
-        if (existingIdx > -1) {
-            cart[existingIdx].quantity += orderItem.quantity;
-        } else {
-            cart.push({
-                id: orderItem.bookId,
-                title: orderItem.title,
-                price: orderItem.unitPrice,
-                coverImage: orderItem.coverImage,
-                quantity: orderItem.quantity
-            });
-        }
+    // Array of AJAX promises for each item in the order
+    const requests = order.items.map(item => {
+        return $.ajax({
+            url: `api/customer/cart/items/${item.bookId}?quantity=${item.quantity}`,
+            type: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
     });
 
-    localStorage.setItem('bookhaven_cart', JSON.stringify(cart));
-    updateHeaderBadges();
-
-    showToast(`Items from ${order.orderNumber} added to cart! <a href="cart.html" style="text-decoration:underline; font-weight:bold; color:white; margin-left:8px;">View Cart</a>`, 'success');
+    // Execute all add-to-cart requests concurrently
+    $.when.apply($, requests)
+        .done(function () {
+            showToast(`Items from order ${order.orderNumber} added to cart! <a href="cart.html" style="text-decoration:underline; font-weight:bold; color:white; margin-left:8px;">View Cart</a>`, 'success');
+            updateHeaderBadges();
+        })
+        .fail(function (xhr) {
+            console.error('Failed to add items to cart:', xhr);
+            showToast('Failed to add some items to your cart.', 'error');
+            updateHeaderBadges();
+        });
 }
 
 // ==========================================================================
@@ -576,7 +564,8 @@ function formatDate(dateStr) {
 function formatPaymentName(method) {
     if (method === 'CREDIT_CARD') return 'Credit / Debit Card';
     if (method === 'CASH_ON_DELIVERY') return 'Cash on Delivery';
-    return 'Bank Transfer';
+    if (method === 'BANK_TRANSFER') return 'Bank Transfer';
+    return method || 'N/A';
 }
 
 function showToast(message, type = 'info') {
@@ -601,14 +590,12 @@ function handleAIChatSend(userText) {
         if (q.includes('latest order') || q.includes('where is')) {
             const latest = ordersData[0];
             if (latest) {
-                response = `Your latest order is ${latest.orderNumber} (${latest.status}). Estimated delivery: ${formatDate(latest.deliveryDate)}.`;
+                response = `Your latest order is ${latest.orderNumber} (${latest.status}).`;
             }
         } else if (q.includes('arrive') || q.includes('when')) {
             response = "Delivery typically takes 2–5 business days for standard shipping and 1–2 days for express.";
         } else if (q.includes('recent')) {
             response = `You have ${ordersData.length} total orders registered in your account history.`;
-        } else if (q.includes('recommend')) {
-            response = "Based on your Clean Code purchase, we recommend 'The Pragmatic Programmer' and 'Refactoring'!";
         }
 
         body.append(`<div class="ai-message bot-message">${response}</div>`);
