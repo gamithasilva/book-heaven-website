@@ -101,7 +101,6 @@ const mockReviewsDatabase = [
     }
 ];
 
-
 // Page Local State
 let state = {
     bookId: null,
@@ -121,8 +120,8 @@ $(document).ready(function () {
     extractUrlParams();
     setupEventListeners();
     state.isLoggedIn = checkLoginState();
+    loadCartAPI();
     loadBookData();
-
 });
 
 function initTheme() {
@@ -157,7 +156,6 @@ function loadBookData() {
     showLoadingState();
 
     $.ajax({
-        // FIX: Replaced quotes with backticks for template string evaluation
         url: `/api/v1/books/${state.bookId}`,
         type: "GET",
         contentType: "application/json",
@@ -167,7 +165,6 @@ function loadBookData() {
             if (response && response.body) {
                 state.currentBook = response.body;
                 renderBookDetails(state.currentBook);
-             //   renderReviews(mockReviewsDatabase);
                 loadReviews();
                 renderRelatedBooks();
                 showDetailContent();
@@ -186,35 +183,115 @@ function loadBookData() {
 }
 
 function loadReviews() {
-
     $.ajax({
         url: `/api/v1/books/${state.bookId}/reviews`,
         type: "GET",
         contentType: "application/json",
 
         success: function(response) {
-
             console.log("Reviews API Response:", response);
 
             if (response && response.body && Array.isArray(response.body)) {
                 const reviews = response.body;
-                renderRatingBreakdown(reviews)
+                renderRatingBreakdown(reviews);
                 renderReviews(reviews);
-
             } else {
-
                 renderReviews([]);
-
             }
         },
         error: function(xhr, status, error) {
             console.error("Reviews API Error:", error);
-            // Don't break the book page if reviews fail
             renderReviews([]);
             showToast("Failed to load reviews", "info");
         }
     });
 }
+
+// ==========================================================================
+// Cart API Integration
+// ==========================================================================
+function loadCartAPI() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        state.cart = [];
+        updateCartBadge();
+        return;
+    }
+
+    $.ajax({
+        url: "/api/customer/cart",
+        type: "GET",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (response) {
+            if (response.status === 200 && response.body) {
+                state.cart = response.body.items || [];
+            } else {
+                state.cart = [];
+            }
+            updateCartBadge();
+        },
+        error: function (xhr) {
+            console.error("Failed to load cart:", xhr);
+            state.cart = [];
+            updateCartBadge();
+        }
+    });
+}
+
+function addToCartAPI(bookId, quantity = 1) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        showToast("Please login first!", "info");
+        return;
+    }
+
+    if (state.currentBook && state.currentBook.stock <= 0) {
+        showToast("This book is out of stock.", "error");
+        return;
+    }
+
+    $.ajax({
+        url: `/api/customer/cart/items/${bookId}?quantity=${quantity}`,
+        type: "POST",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (response) {
+            console.log("Add to cart response:", response);
+
+            if (response.status === 200) {
+                state.cart = response.body?.items || [];
+                updateCartBadge();
+
+                const title = state.currentBook ? state.currentBook.title : "Book";
+                showToast(`Added ${quantity} x "${title}" to cart!`, "success");
+            }
+        },
+        error: function (xhr) {
+            console.error("Add to cart error:", xhr);
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Please login first!", "info");
+                return;
+            }
+
+            showToast("Failed to add book to cart.", "error");
+        }
+    });
+}
+
+function updateCartBadge() {
+    let totalQuantity = 0;
+    state.cart.forEach(item => {
+        totalQuantity += item.quantity || 0;
+    });
+    $('#cart-badge').text(totalQuantity);
+}
+
 // ==========================================================================
 // DOM Renderers
 // ==========================================================================
@@ -321,16 +398,6 @@ function renderReviews(reviews) {
     $('#summary-score').text(state.currentBook.rating.toFixed(1));
     $('#summary-stars').html(renderStars(state.currentBook.rating));
 
-    // Ratings breakdown simulation
-    // const breakdownHTML = `
-    //     <div class="breakdown-row"><span class="star-label">5 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div><span class="percent-label">80%</span></div>
-    //     <div class="breakdown-row"><span class="star-label">4 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 15%;"></div></div><span class="percent-label">15%</span></div>
-    //     <div class="breakdown-row"><span class="star-label">3 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 3%;"></div></div><span class="percent-label">3%</span></div>
-    //     <div class="breakdown-row"><span class="star-label">2 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
-    //     <div class="breakdown-row"><span class="star-label">1 <i class="fa-solid fa-star stars"></i></span><div class="progress-bar"><div class="progress-fill" style="width: 1%;"></div></div><span class="percent-label">1%</span></div>
-    // `;
-    // $('#rating-breakdown-container').html(breakdownHTML);
-
     // List Rendering
     const listContainer = $('#reviews-list-container').empty();
     reviews.forEach(rev => {
@@ -376,7 +443,7 @@ function renderRelatedBooks() {
                     <div class="card-price-row">Rs. ${book.price.toLocaleString()}</div>
                     <div class="card-actions">
                         <a href="book-details.html?id=${book.id}" class="btn btn-outline btn-sm">Details</a>
-                        <button class="btn btn-primary btn-sm" onclick="showToast('Added ${book.title} to cart!', 'success')">
+                        <button class="btn btn-primary btn-sm" onclick="addToCartAPI('${book.id}', 1)">
                             <i class="fa-solid fa-cart-plus"></i>
                         </button>
                     </div>
@@ -400,77 +467,43 @@ function renderStars(rating) {
     return stars;
 }
 
-
 function renderRatingBreakdown(reviews) {
-
-    const starCounts = {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0
-    };
+    const starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
     reviews.forEach(review => {
-
         const rating = Number(review.rating);
-
         let star;
 
-        if (rating >= 0 && rating < 1) {
-            star = 1;
-        } else if (rating >= 1 && rating < 2) {
-            star = 2;
-        } else if (rating >= 2 && rating < 3) {
-            star = 3;
-        } else if (rating >= 3 && rating < 4) {
-            star = 4;
-        } else if (rating >= 4 && rating <= 5) {
-            star = 5;
-        }
+        if (rating >= 0 && rating < 1) star = 1;
+        else if (rating >= 1 && rating < 2) star = 2;
+        else if (rating >= 2 && rating < 3) star = 3;
+        else if (rating >= 3 && rating < 4) star = 4;
+        else if (rating >= 4 && rating <= 5) star = 5;
 
-        if (star) {
-            starCounts[star]++;
-        }
+        if (star) starCounts[star]++;
     });
 
     const totalReviews = reviews.length;
-
     let breakdownHTML = '';
 
     for (let star = 5; star >= 1; star--) {
-
         const count = starCounts[star];
-
-        const percentage = totalReviews > 0
-            ? (count / totalReviews) * 100
-            : 0;
+        const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
 
         breakdownHTML += `
             <div class="breakdown-row">
-
-                <span class="star-label">
-                    ${star}
-                    <i class="fa-solid fa-star stars"></i>
-                </span>
-
+                <span class="star-label">${star} <i class="fa-solid fa-star stars"></i></span>
                 <div class="progress-bar">
-                    <div 
-                        class="progress-fill"
-                        style="width: ${percentage}%;">
-                    </div>
+                    <div class="progress-fill" style="width: ${percentage}%;"></div>
                 </div>
-
-                <span class="percent-label">
-                    ${Math.round(percentage)}%
-                </span>
-
+                <span class="percent-label">${Math.round(percentage)}%</span>
             </div>
         `;
     }
 
     $('#rating-breakdown-container').html(breakdownHTML);
 }
+
 // ==========================================================================
 // View State Switchers
 // ==========================================================================
@@ -537,45 +570,23 @@ function setupEventListeners() {
 
     // Shopping Action Buttons
     $('#add-to-cart-btn').on('click', function () {
-        state.cart.push({ book: state.currentBook, qty: state.selectedQuantity });
-        $('#cart-badge').text(state.cart.length);
-        showToast(`Added ${state.selectedQuantity} x "${state.currentBook.title}" to cart!`, 'success');
+        if (!state.currentBook) return;
+        addToCartAPI(state.currentBook.id, state.selectedQuantity);
     });
 
     $('#buy-now-btn').on('click', function () {
-        // Direct navigation to checkout with selected book item
+        if (!state.currentBook) return;
         window.location.href = `checkout.html?buyNowId=${state.currentBook.id}&qty=${state.selectedQuantity}`;
     });
 
-    // $('#wishlist-toggle-btn').on('click', function () {
-    //     state.isWishlisted = !state.isWishlisted;
-    //     const icon = $(this).find('i');
-    //
-    //     if (state.isWishlisted) {
-    //         $(this).addClass('active');
-    //         icon.removeClass('fa-regular').addClass('fa-solid');
-    //         state.wishlist.push(state.currentBook.id);
-    //         showToast(`Added "${state.currentBook.title}" to wishlist!`, 'success');
-    //     } else {
-    //         $(this).removeClass('active');
-    //         icon.removeClass('fa-solid').addClass('fa-regular');
-    //         state.wishlist = state.wishlist.filter(id => id !== state.currentBook.id);
-    //         showToast(`Removed from wishlist`, 'info');
-    //     }
-    //     $('#wishlist-badge').text(state.wishlist.length);
-    // });
-
     $('#wishlist-toggle-btn').on('click', function () {
-
         const token = localStorage.getItem("token");
 
-        // Not logged in
         if (!token) {
             showToast("Please login first!", "info");
             return;
         }
 
-        // Safety check
         if (!state.currentBook) {
             showToast("Book information is not available.", "error");
             return;
@@ -590,12 +601,7 @@ function setupEventListeners() {
         }
     });
 
-    // ============================================================
-// Wishlist API
-// ============================================================
-
-
-    // Review Form Submission (Prepare POST /api/v1/books/{bookId}/reviews)
+    // Review Form Submission
     $('#review-form').on('submit', function (e) {
         e.preventDefault();
         const rating = $('input[name="userRating"]:checked').val();
@@ -607,7 +613,7 @@ function setupEventListeners() {
         }
 
         if(!comment){
-            showToast('Please enter review')
+            showToast('Please enter review');
             return;
         }
 
@@ -627,69 +633,29 @@ function setupEventListeners() {
                 "Authorization" : "Bearer " + localStorage.getItem("token")
             },
             success : function (response) {
-                showToast(
-                    "Your review has been submitted successfully!",
-                    "success"
-                );
-
-                // Clear form
+                showToast("Your review has been submitted successfully!", "success");
                 $("#review-form")[0].reset();
-
                 loadReviews();
-
                 loadBookData();
-
             },
             error: function (xhr){
                 if (xhr.status === 401) {
-
-                    showToast(
-                        "Please login to write a review",
-                        "error"
-                    );
-
+                    showToast("Please login to write a review", "error");
                 } else if (xhr.status === 409) {
-
-                    showToast(
-                        "You have already reviewed this book",
-                        "error"
-                    );
-
+                    showToast("You have already reviewed this book", "error");
                 } else if (xhr.status === 404) {
-
-                    showToast(
-                        "Book or customer not found",
-                        "error"
-                    );
-
+                    showToast("Book or customer not found", "error");
                 } else {
-
-                    showToast(
-                        "Failed to submit review",
-                        "error"
-                    );
+                    showToast("Failed to submit review", "error");
                 }
             }
-        })
-    //     // Local UI update simulation
-    //     mockReviewsDatabase.unshift({
-    //         id: Date.now(),
-    //         author: "Current User",
-    //         rating: parseInt(rating),
-    //         comment: comment,
-    //         date: "Just Now"
-    //     });
-    //
-    //     renderReviews(mockReviewsDatabase);
-    //     $('#review-comment').val('');
-    //     $('input[name="userRating"]').prop('checked', false);
-    //     showToast('Thank you! Your review has been submitted.', 'success');
-         });
+        });
+    });
 
     // Login Prompt Simulators
     $('#login-btn, #prompt-login-btn').on('click', function (e) {
         e.preventDefault();
-        state.isLoggedIn = !state.isLoggedIn; // Toggle auth state for demo
+        state.isLoggedIn = !state.isLoggedIn;
         showToast(state.isLoggedIn ? "Logged in as Demo User" : "Logged out", "info");
         $('#login-btn').text(state.isLoggedIn ? "Logout" : "Login");
         if (state.currentBook) renderReviews(mockReviewsDatabase);
@@ -735,7 +701,7 @@ function showToast(message, type = 'info') {
 }
 
 // ==========================================================================
-// Context-Aware AI Chat Engine (POST /api/v1/ai/chat)
+// Context-Aware AI Chat Engine
 // ==========================================================================
 function handleAIChatSend(text) {
     const body = $('#ai-chat-body');
@@ -743,7 +709,6 @@ function handleAIChatSend(text) {
     $('#ai-input').val('');
     body.scrollTop(body[0].scrollHeight);
 
-    // AI Response Simulation using current book context
     setTimeout(() => {
         let response = "I can answer questions regarding this book's content, difficulty, or price comparisons!";
         const lower = text.toLowerCase();
@@ -766,7 +731,6 @@ function formatReviewDate(dateString) {
     const reviewDate = new Date(dateString);
     const now = new Date();
 
-    // Remove time and compare only dates
     const reviewDay = new Date(
         reviewDate.getFullYear(),
         reviewDate.getMonth(),
@@ -782,7 +746,6 @@ function formatReviewDate(dateString) {
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
 
-    // Today → show time
     if (reviewDay.getTime() === today.getTime()) {
         return reviewDate.toLocaleTimeString([], {
             hour: 'numeric',
@@ -790,12 +753,10 @@ function formatReviewDate(dateString) {
         });
     }
 
-    // Yesterday
     if (reviewDay.getTime() === yesterday.getTime()) {
         return "Yesterday";
     }
 
-    // Older → show date
     return reviewDate.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -804,14 +765,11 @@ function formatReviewDate(dateString) {
 }
 
 function checkLoginState(){
-
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     return !!token;
-
 }
 
 function addToWishlist(bookId) {
-
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -825,11 +783,8 @@ function addToWishlist(bookId) {
         headers: {
             "Authorization": "Bearer " + token
         },
-
         success: function (response) {
-
             console.log("Add Wishlist Response:", response);
-
             state.isWishlisted = true;
 
             if (!state.wishlist.includes(bookId)) {
@@ -838,36 +793,22 @@ function addToWishlist(bookId) {
 
             updateWishlistButton();
             updateWishlistBadge();
-
-            showToast(
-                `"${state.currentBook.title}" added to wishlist!`,
-                "success"
-            );
+            showToast(`"${state.currentBook.title}" added to wishlist!`, "success");
         },
-
         error: function (xhr) {
-
             console.error("Add wishlist error:", xhr);
-
             if (xhr.status === 401 || xhr.status === 403) {
                 showToast("Please login first!", "info");
-            }
-            else if (xhr.status === 409) {
+            } else if (xhr.status === 409) {
                 showToast("Book is already in your wishlist.", "info");
-            }
-            else {
-                showToast(
-                    "Failed to add book to wishlist.",
-                    "error"
-                );
+            } else {
+                showToast("Failed to add book to wishlist.", "error");
             }
         }
     });
 }
 
-
 function removeFromWishlist(bookId) {
-
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -881,81 +822,49 @@ function removeFromWishlist(bookId) {
         headers: {
             "Authorization": "Bearer " + token
         },
-
         success: function (response) {
-
             console.log("Remove Wishlist Response:", response);
-
             state.isWishlisted = false;
-
-            state.wishlist = state.wishlist.filter(
-                id => String(id) !== String(bookId)
-            );
+            state.wishlist = state.wishlist.filter(id => String(id) !== String(bookId));
 
             updateWishlistButton();
             updateWishlistBadge();
-
-            showToast(
-                `"${state.currentBook.title}" removed from wishlist.`,
-                "info"
-            );
+            showToast(`"${state.currentBook.title}" removed from wishlist.`, "info");
         },
-
         error: function (xhr) {
-
             console.error("Remove wishlist error:", xhr);
-
             if (xhr.status === 401 || xhr.status === 403) {
                 showToast("Please login first!", "info");
-            }
-            else {
-                showToast(
-                    "Failed to remove book from wishlist.",
-                    "error"
-                );
+            } else {
+                showToast("Failed to remove book from wishlist.", "error");
             }
         }
     });
 }
 
 function updateWishlistButton() {
-
     const button = $('#wishlist-toggle-btn');
     const icon = button.find('i');
 
     if (state.isWishlisted) {
-
         button.addClass('active');
-
-        icon
-            .removeClass('fa-regular')
-            .addClass('fa-solid');
-
+        icon.removeClass('fa-regular').addClass('fa-solid');
         button.attr('title', 'Remove from Wishlist');
-
     } else {
-
         button.removeClass('active');
-
-        icon
-            .removeClass('fa-solid')
-            .addClass('fa-regular');
-
+        icon.removeClass('fa-solid').addClass('fa-regular');
         button.attr('title', 'Add to Wishlist');
     }
 }
 
 function loadWishlist() {
-
     const token = localStorage.getItem("token");
 
     if (!token) {
         state.wishlist = [];
         state.isWishlisted = false;
-
         updateWishlistButton();
         updateWishlistBadge();
-
         return;
     }
 
@@ -965,22 +874,16 @@ function loadWishlist() {
         headers: {
             "Authorization": "Bearer " + token
         },
-
         success: function (response) {
-
             console.log("Wishlist Response:", response);
-
             const wishlist = response.body;
-
             const items = wishlist?.wishlistItemDTOS || [];
 
             state.wishlist = items
                 .map(item => item.bookId)
                 .filter(id => id != null);
 
-            // Check current book
             if (state.currentBook) {
-
                 state.isWishlisted = state.wishlist.some(
                     id => String(id) === String(state.currentBook.id)
                 );
@@ -988,41 +891,21 @@ function loadWishlist() {
 
             updateWishlistButton();
             updateWishlistBadge();
-
-            console.log(
-                "Wishlist IDs:",
-                state.wishlist
-            );
-
-            console.log(
-                "Current book wishlisted:",
-                state.isWishlisted
-            );
         },
-
         error: function (xhr) {
-
-            console.error(
-                "Failed to load wishlist:",
-                xhr
-            );
-
+            console.error("Failed to load wishlist:", xhr);
             state.wishlist = [];
             state.isWishlisted = false;
-
             updateWishlistButton();
             updateWishlistBadge();
         }
     });
 }
 
-
 function updateWishlistBadge() {
-
-    $('#wishlist-badge').text(
-        state.wishlist.length
-    );
+    $('#wishlist-badge').text(state.wishlist.length);
 }
+
 // Social Copy Link
 $('#copy-link-btn').on('click', function () {
     navigator.clipboard.writeText(window.location.href).then(() => {

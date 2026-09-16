@@ -1,58 +1,119 @@
 /**
- * BookHaven - Checkout Page Engine
- * Handles cart loading, delivery address selection, payment validation,
- * dynamic subtotal calculations, and mock order submission.
+ * BookHaven - Checkout Page Engine (API connected)
+ *
+ * Endpoints used
+ *   GET    /api/customer/cart
+ *   DELETE /api/customer/cart/clear
+ *   GET    /api/v1/books/{id}                         (Buy Now mode)
+ *   GET    /api/customer/addresses/customer/{customerId}
+ *   POST   /api/customer/addresses
+ *   DELETE /api/customer/addresses/{id}
+ *   PUT    /api/customer/addresses/{addressId}/default/{customerId}
+ *   POST   /api/customer/orders
+ *
+ * All responses are CommonResponse => { status, body, message }
  */
 
-// Sample Default User Addresses
-const initialAddresses = [
-    {
-        id: "addr_1",
-        type: "Home",
-        firstName: "Kaveesha",
-        lastName: "Silva",
-        addressLine1: "25 Main Street",
-        addressLine2: "",
-        city: "Colombo 01",
-        postalCode: "00100",
-        country: "Sri Lanka",
-        phone: "0771234567"
-    },
-    {
-        id: "addr_2",
-        type: "Work",
-        firstName: "Kaveesha",
-        lastName: "Silva",
-        addressLine1: "100 Business Road",
-        addressLine2: "Floor 4",
-        city: "Colombo 03",
-        postalCode: "00300",
-        country: "Sri Lanka",
-        phone: "0771234567"
-    }
-];
+// ==========================================================================
+// Config / State
+// ==========================================================================
+const API = {
+    CART: '/api/customer/cart',
+    CART_CLEAR: '/api/customer/cart/clear',
+    BOOK: (id) => `/api/v1/books/${id}`,
+    ADDRESSES: '/api/customer/addresses',
+    ADDRESSES_BY_CUSTOMER: (cid) => `/api/customer/addresses/customer/${cid}`,
+    ADDRESS: (id) => `/api/customer/addresses/${id}`,
+    ADDRESS_DEFAULT: (aid, cid) => `/api/customer/addresses/${aid}/default/${cid}`,
+    ORDERS: '/api/customer/orders'
+};
 
-// Checkout State
+const PLACEHOLDER_COVER =
+    "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600";
+
 let state = {
     cart: [],
     addresses: [],
     selectedAddressId: null,
-    deliveryMethod: 'STANDARD', // STANDARD or EXPRESS
-    paymentMethod: 'CREDIT_CARD', // CREDIT_CARD, CASH_ON_DELIVERY, BANK_TRANSFER
+    customerId: null,
+    deliveryMethod: 'STANDARD',      // STANDARD | EXPRESS
+    paymentMethod: 'CREDIT_CARD',    // CREDIT_CARD | CASH_ON_DELIVERY | BANK_TRANSFER
     discountRate: 0,
     appliedCoupon: '',
-    deliveryFee: 350
+    deliveryFee: 350,
+    buyNowMode: false
 };
+
+// ==========================================================================
+// Auth helpers
+// ==========================================================================
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+
+/** Decode the JWT payload without any external library. */
+function decodeToken() {
+    const token = getToken();
+    if (!token || token.split('.').length !== 3) return null;
+    try {
+        const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(decodeURIComponent(
+            atob(payload).split('').map(c =>
+                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+            ).join('')
+        ));
+    } catch (e) {
+        return null;
+    }
+}
+
+/** Customer id is needed by the address endpoints. */
+function resolveCustomerId() {
+    const stored = localStorage.getItem('customerId');
+    if (stored) return Number(stored);
+
+    const claims = decodeToken();
+    if (claims) {
+        const id = claims.customerId ?? claims.userId ?? claims.id ?? claims.uid;
+        if (id !== undefined && id !== null) {
+            localStorage.setItem('customerId', id);
+            return Number(id);
+        }
+    }
+    return null;
+}
+
+function requireAuth() {
+    if (!getToken()) {
+        showToast('Please sign in to continue to checkout.', 'danger');
+        setTimeout(() => { window.location.href = 'login.html?redirect=checkout.html'; }, 1200);
+        return false;
+    }
+    return true;
+}
+
+function apiMessage(xhr, fallback) {
+    return (xhr && xhr.responseJSON && xhr.responseJSON.message) || fallback;
+}
 
 // ==========================================================================
 // Initialization
 // ==========================================================================
 $(document).ready(function () {
     initTheme();
-    loadCheckoutData();
     setupEventListeners();
-    renderAddresses();
-    renderCheckoutSummary();
+
+    if (!requireAuth()) return;
+
+    state.customerId = resolveCustomerId();
+
+    loadCheckoutData();
+    loadAddresses();
 });
 
 function initTheme() {
@@ -70,64 +131,193 @@ function updateThemeIcon(theme) {
     }
 }
 
+// ==========================================================================
+// Cart loading
+// ==========================================================================
 function loadCheckoutData() {
-    // Load Cart
-    const storedCart = localStorage.getItem('bookhaven_cart');
-    if (storedCart) {
-        state.cart = JSON.parse(storedCart);
-    } else {
-        state.cart = [];
-    }
+    const params = new URLSearchParams(window.location.search);
+    const buyNowId = params.get('buyNowId');
+    const buyNowQty = parseInt(params.get('qty')) || 1;
 
-    // Load Saved Addresses
-    const storedAddresses = localStorage.getItem('bookhaven_addresses');
-    if (storedAddresses) {
-        state.addresses = JSON.parse(storedAddresses);
-    } else {
-        state.addresses = [...initialAddresses];
-        localStorage.setItem('bookhaven_addresses', JSON.stringify(state.addresses));
-    }
-
-    if (state.addresses.length > 0) {
-        state.selectedAddressId = state.addresses[0].id;
-    }
-
-    // Update Header Badges
     const wishlist = JSON.parse(localStorage.getItem('bookhaven_wishlist') || '[]');
     $('#wishlist-badge').text(wishlist.length);
+
+    if (buyNowId) {
+        state.buyNowMode = true;
+        loadSingleBookForCheckout(buyNowId, buyNowQty);
+    } else {
+        loadFullCartForCheckout();
+    }
+}
+
+function loadSingleBookForCheckout(bookId, quantity) {
+    $.ajax({
+        url: API.BOOK(bookId),
+        type: 'GET',
+        headers: authHeaders(),
+        success: function (response) {
+            const book = response && response.body;
+            state.cart = book ? [normalizeCartItem({ ...book, bookId: book.id, quantity })] : [];
+            updateCheckoutUI();
+        },
+        error: function (xhr) {
+            state.cart = [];
+            showToast(apiMessage(xhr, 'Could not load this book.'), 'danger');
+            updateCheckoutUI();
+        }
+    });
+}
+
+function loadFullCartForCheckout() {
+    $.ajax({
+        url: API.CART,
+        type: 'GET',
+        headers: authHeaders(),
+        success: function (response) {
+            const items = (response && response.body && response.body.items) || [];
+            state.cart = items.map(normalizeCartItem);
+            updateCheckoutUI();
+        },
+        error: function (xhr) {
+            if (xhr.status === 401 || xhr.status === 403) {
+                requireAuth();
+                return;
+            }
+            state.cart = [];
+            showToast(apiMessage(xhr, 'Could not load your cart.'), 'danger');
+            updateCheckoutUI();
+        }
+    });
+}
+
+/** Maps CartItemDTO (or a BookDTO in Buy Now mode) into the shape the UI uses. */
+function normalizeCartItem(item) {
+    return {
+        id: Number(item.bookId ?? item.id),
+        cartItemId: item.id,
+        title: item.title,
+        author: item.author,
+        category: item.category || 'General',
+        price: Number(item.price || 0),
+        quantity: Number(item.quantity || 1),
+        stock: item.stock !== undefined ? item.stock : 10,
+        coverImage: item.coverImage || PLACEHOLDER_COVER
+    };
+}
+
+function updateCheckoutUI() {
     const totalCartItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
     $('#cart-badge').text(totalCartItems);
 
-    // Empty Cart Check
-    if (state.cart.length === 0) {
+    if (!state.cart.length) {
         $('#checkout-main-layout').hide();
         $('#empty-checkout-state').fadeIn(200);
+    } else {
+        $('#empty-checkout-state').hide();
+        $('#checkout-main-layout').show();
+        renderCheckoutSummary();
     }
 }
 
 // ==========================================================================
-// Address Management UI Engine
+// Address Management (API backed)
 // ==========================================================================
+function loadAddresses() {
+    if (!state.customerId) {
+        showToast('Could not identify your account. Please sign in again.', 'danger');
+        return;
+    }
+
+    $.ajax({
+        url: API.ADDRESSES_BY_CUSTOMER(state.customerId),
+        type: 'GET',
+        headers: authHeaders(),
+        success: function (response) {
+            state.addresses = (response && response.body) || [];
+
+            const def = state.addresses.find(a => a.isDefault);
+            state.selectedAddressId = def ? def.id
+                : (state.addresses.length ? state.addresses[0].id : null);
+
+            renderAddresses();
+
+            if (!state.addresses.length) {
+                $('#new-address-form').slideDown();
+            }
+        },
+        error: function (xhr) {
+            state.addresses = [];
+            renderAddresses();
+            showToast(apiMessage(xhr, 'Could not load your saved addresses.'), 'danger');
+        }
+    });
+}
+
 function renderAddresses() {
     const grid = $('#saved-addresses-grid').empty();
 
+    if (!state.addresses.length) {
+        grid.append(`<p class="empty-hint">No saved addresses yet. Add one below.</p>`);
+        return;
+    }
+
     state.addresses.forEach(addr => {
-        const isSelected = addr.id === state.selectedAddressId;
+        const isSelected = Number(addr.id) === Number(state.selectedAddressId);
         grid.append(`
-            <div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress('${addr.id}')">
-                <span class="address-tag">${addr.type}</span>
-                <strong>${addr.firstName} ${addr.lastName}</strong>
-                <p>${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
-                <p>${addr.city}, ${addr.postalCode}, ${addr.country}</p>
-                <p class="phone">${addr.phone}</p>
+            <div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${addr.id})">
+                <span class="address-tag">${addr.isDefault ? 'Default' : 'Saved'}</span>
+                <strong>${addr.recipientName || ''}</strong>
+                <p>${addr.addressLine1 || ''}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
+                <p>${addr.city || ''}, ${addr.postalCode || ''}, ${addr.country || ''}</p>
+                <p class="phone">${addr.phone || ''}</p>
+                <div class="address-card-actions">
+                    ${addr.isDefault ? '' :
+            `<button type="button" class="btn-link" onclick="event.stopPropagation(); makeDefaultAddress(${addr.id})">Set default</button>`}
+                    <button type="button" class="btn-link danger" onclick="event.stopPropagation(); deleteAddress(${addr.id})">Delete</button>
+                </div>
             </div>
         `);
     });
 }
 
 function selectAddress(id) {
-    state.selectedAddressId = id;
+    state.selectedAddressId = Number(id);
     renderAddresses();
+}
+
+function makeDefaultAddress(addressId) {
+    $.ajax({
+        url: API.ADDRESS_DEFAULT(addressId, state.customerId),
+        type: 'PUT',
+        headers: authHeaders(),
+        success: function () {
+            showToast('Default address updated', 'success');
+            loadAddresses();
+        },
+        error: function (xhr) {
+            showToast(apiMessage(xhr, 'Could not update the default address.'), 'danger');
+        }
+    });
+}
+
+function deleteAddress(addressId) {
+    if (!confirm('Delete this address?')) return;
+
+    $.ajax({
+        url: API.ADDRESS(addressId),
+        type: 'DELETE',
+        headers: authHeaders(),
+        success: function () {
+            if (Number(state.selectedAddressId) === Number(addressId)) {
+                state.selectedAddressId = null;
+            }
+            showToast('Address deleted', 'success');
+            loadAddresses();
+        },
+        error: function (xhr) {
+            showToast(apiMessage(xhr, 'Could not delete this address.'), 'danger');
+        }
+    });
 }
 
 function validateNewAddressForm() {
@@ -145,7 +335,7 @@ function validateNewAddressForm() {
     ];
 
     fields.forEach(f => {
-        const val = $(f.id).val().trim();
+        const val = ($(f.id).val() || '').trim();
         if (!val) {
             $(f.id).closest('.form-group').addClass('has-error');
             $(f.err).text(`${f.name} is required.`);
@@ -156,35 +346,69 @@ function validateNewAddressForm() {
     return isValid;
 }
 
-function saveNewAddress() {
-    if (!validateNewAddressForm()) return;
-
-    const newAddr = {
-        id: 'addr_' + Date.now(),
-        type: 'New',
-        firstName: $('#addr-first-name').val().trim(),
-        lastName: $('#addr-last-name').val().trim(),
+/** Builds an AddressDTO from the form. recipientName = first + last name. */
+function buildAddressPayload() {
+    return {
+        customerId: state.customerId,
+        recipientName: `${$('#addr-first-name').val().trim()} ${$('#addr-last-name').val().trim()}`.trim(),
         addressLine1: $('#addr-line1').val().trim(),
-        addressLine2: $('#addr-line2').val().trim(),
+        addressLine2: $('#addr-line2').val().trim() || null,
         city: $('#addr-city').val().trim(),
         postalCode: $('#addr-postal').val().trim(),
         country: $('#addr-country').val().trim(),
-        phone: $('#addr-phone').val().trim()
+        phone: $('#addr-phone').val().trim(),
+        isDefault: $('#save-address-check').is(':checked') && state.addresses.length === 0
     };
+}
 
-    if ($('#save-address-check').is(':checked')) {
-        state.addresses.push(newAddr);
-        localStorage.setItem('bookhaven_addresses', JSON.stringify(state.addresses));
-    }
+/**
+ * Saves the address through the API.
+ * onDone(addressId) runs after a successful save — used by the order flow.
+ */
+function saveNewAddress(onDone) {
+    if (!validateNewAddressForm()) return;
 
-    state.selectedAddressId = newAddr.id;
-    renderAddresses();
-    $('#new-address-form').slideUp();
-    showToast('Address applied successfully', 'success');
+    $('#save-address-btn').prop('disabled', true);
+
+    $.ajax({
+        url: API.ADDRESSES,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: authHeaders(),
+        data: JSON.stringify(buildAddressPayload()),
+        success: function (response) {
+            const saved = response && response.body;
+            $('#save-address-btn').prop('disabled', false);
+
+            if (!saved || saved.id === undefined) {
+                showToast('Address saved but no id returned.', 'danger');
+                return;
+            }
+
+            state.addresses.push(saved);
+            state.selectedAddressId = saved.id;
+            renderAddresses();
+            clearAddressForm();
+            $('#new-address-form').slideUp();
+            showToast('Address saved successfully', 'success');
+
+            if (typeof onDone === 'function') onDone(saved.id);
+        },
+        error: function (xhr) {
+            $('#save-address-btn').prop('disabled', false);
+            showToast(apiMessage(xhr, 'Could not save the address.'), 'danger');
+        }
+    });
+}
+
+function clearAddressForm() {
+    $('#addr-first-name, #addr-last-name, #addr-phone, #addr-line1, #addr-line2, #addr-city, #addr-postal, #addr-country').val('');
+    $('.form-group').removeClass('has-error');
+    $('#err-first-name, #err-last-name, #err-phone, #err-line1, #err-city, #err-postal, #err-country').text('');
 }
 
 // ==========================================================================
-// Payment Form Engine
+// Payment Form Validation
 // ==========================================================================
 function validateCardForm() {
     let isValid = true;
@@ -223,7 +447,7 @@ function validateCardForm() {
 }
 
 // ==========================================================================
-// Dynamic Summary Calculation Engine
+// Summary Calculation
 // ==========================================================================
 function renderCheckoutSummary() {
     const list = $('#checkout-cart-items').empty();
@@ -245,18 +469,12 @@ function renderCheckoutSummary() {
         `);
     });
 
-    // Discount Calculation
     const discountAmt = rawSubtotal * state.discountRate;
 
-    // Free Shipping Threshold Check (Rs. 10,000)
     if (rawSubtotal >= 10000) {
         $('#free-shipping-banner').show();
         $('#standard-price-label').html('<span class="text-success">FREE</span>');
-        if (state.deliveryMethod === 'STANDARD') {
-            state.deliveryFee = 0;
-        } else {
-            state.deliveryFee = 750;
-        }
+        state.deliveryFee = (state.deliveryMethod === 'STANDARD') ? 0 : 750;
     } else {
         $('#free-shipping-banner').hide();
         $('#standard-price-label').text('Rs. 350');
@@ -309,83 +527,109 @@ function showCouponMessage(msg, type) {
 }
 
 // ==========================================================================
-// Place Order Submission
+// Place Order — POST /api/customer/orders
 // ==========================================================================
 function processOrderPlacement() {
-    if (state.cart.length === 0) {
+    if (!state.cart.length) {
         showToast('Your cart is empty', 'danger');
         return;
     }
 
-    if (!state.selectedAddressId && $('#new-address-form').is(':hidden')) {
+    if (state.paymentMethod === 'CREDIT_CARD' && !validateCardForm()) {
+        showToast('Please fix payment information errors.', 'danger');
+        return;
+    }
+
+    // A new address must be persisted first so the API gets a real addressId.
+    if ($('#new-address-form').is(':visible')) {
+        saveNewAddress(function (newId) {
+            submitOrder(newId);
+        });
+        return;
+    }
+
+    if (!state.selectedAddressId) {
         showToast('Please select or add a delivery address.', 'danger');
         return;
     }
 
-    // If New Address Form active, validate first
-    if ($('#new-address-form').is(':visible')) {
-        if (!validateNewAddressForm()) return;
-        saveNewAddress();
-    }
+    submitOrder(state.selectedAddressId);
+}
 
-    // Validate Card if Card option selected
-    if (state.paymentMethod === 'CREDIT_CARD') {
-        if (!validateCardForm()) {
-            showToast('Please fix payment information errors.', 'danger');
-            return;
-        }
-    }
-
-    // Prepare API Payload Contract
+function submitOrder(addressId) {
     const orderPayload = {
-        addressId: state.selectedAddressId,
+        addressId: Number(addressId),
         paymentMethod: state.paymentMethod,
         deliveryMethod: state.deliveryMethod,
         couponCode: state.appliedCoupon || null,
-        notes: $('#order-notes').val().trim(),
+        notes: ($('#order-notes').val() || '').trim(),
         items: state.cart.map(item => ({
             bookId: item.id,
             quantity: item.quantity
         }))
     };
 
-    console.log("Submitting Order Payload to API Endpoint POST /api/v1/orders:", orderPayload);
+    setOrderButtonLoading(true);
 
-    // UI Loading State
-    $('#place-order-btn').prop('disabled', true);
-    $('#btn-text').hide();
-    $('#btn-spinner').show();
+    $.ajax({
+        url: API.ORDERS,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: authHeaders(),
+        data: JSON.stringify(orderPayload),
+        success: function (response) {
+            setOrderButtonLoading(false);
 
-    // Simulated API Call
-    setTimeout(() => {
-        /* Future Spring Boot Call:
-        $.ajax({
-            url: '/api/v1/orders',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(orderPayload),
-            success: function(res) { ... }
-        });
-        */
+            const order = (response && response.body) || {};
+            showConfirmation(order);
 
-        const generatedOrderId = "BH-2026-" + Math.floor(10000 + Math.random() * 90000);
-        const finalTotalText = $('#summary-total').text();
+            // Only the full-cart flow clears the server cart.
+            if (!state.buyNowMode) clearServerCart();
 
-        $('#confirm-order-id').text(generatedOrderId);
-        $('#confirm-order-total').text(finalTotalText);
-        $('#confirm-payment-method').text(formatPaymentName(state.paymentMethod));
-        $('#confirm-delivery-time').text(state.deliveryMethod === 'EXPRESS' ? '1–2 business days' : '2–5 business days');
+            state.cart = [];
+            $('#cart-badge').text(0);
+        },
+        error: function (xhr) {
+            setOrderButtonLoading(false);
 
-        // Reset Cart Storage
-        localStorage.removeItem('bookhaven_cart');
-        state.cart = [];
+            if (xhr.status === 401 || xhr.status === 403) {
+                requireAuth();
+                return;
+            }
+            showToast(apiMessage(xhr, 'Order could not be placed. Please try again.'), 'danger');
+        }
+    });
+}
 
-        $('#btn-spinner').hide();
-        $('#btn-text').show();
-        $('#place-order-btn').prop('disabled', false);
+function showConfirmation(order) {
+    const total = order.total !== undefined && order.total !== null
+        ? `Rs. ${Number(order.total).toLocaleString()}`
+        : $('#summary-total').text();
 
-        $('#confirmation-modal').fadeIn(200);
-    }, 1200);
+    $('#confirm-order-id').text(order.orderNumber || order.id || '—');
+    $('#confirm-order-total').text(total);
+    $('#confirm-payment-method').text(
+        formatPaymentName((order.payment && order.payment.paymentMethod) || state.paymentMethod)
+    );
+    $('#confirm-delivery-time').text(
+        state.deliveryMethod === 'EXPRESS' ? '1–2 business days' : '2–5 business days'
+    );
+
+    $('#confirmation-modal').fadeIn(200);
+}
+
+function clearServerCart() {
+    $.ajax({
+        url: API.CART_CLEAR,
+        type: 'DELETE',
+        headers: authHeaders()
+    });
+}
+
+function setOrderButtonLoading(loading) {
+    $('#place-order-btn').prop('disabled', loading);
+    $('#btn-text').toggle(!loading);
+    $('#btn-spinner').toggle(loading);
 }
 
 function formatPaymentName(method) {
@@ -403,10 +647,9 @@ function showToast(message, type = 'info') {
 }
 
 // ==========================================================================
-// Event Listeners Binding
+// Event Listeners
 // ==========================================================================
 function setupEventListeners() {
-    // Theme Switcher
     $('#theme-toggle').on('click', function () {
         const currentTheme = $('html').attr('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -415,17 +658,16 @@ function setupEventListeners() {
         updateThemeIcon(newTheme);
     });
 
-    // Mobile Navigation Toggle
     $('#mobile-menu-btn').on('click', function () {
         $('#mobile-nav').slideToggle();
     });
 
-    // Address Form Toggle
     $('#toggle-address-form-btn').on('click', function () {
         $('#new-address-form').slideDown();
     });
 
     $('#cancel-address-btn').on('click', function () {
+        clearAddressForm();
         $('#new-address-form').slideUp();
     });
 
@@ -433,7 +675,6 @@ function setupEventListeners() {
         saveNewAddress();
     });
 
-    // Delivery Radio Change
     $('input[name="deliveryMethod"]').on('change', function () {
         $('.delivery-options-grid .radio-option-card').removeClass('selected');
         $(this).closest('.radio-option-card').addClass('selected');
@@ -441,31 +682,27 @@ function setupEventListeners() {
         renderCheckoutSummary();
     });
 
-    // Payment Radio Change
     $('input[name="paymentMethod"]').on('change', function () {
         $('.payment-options-list .radio-option-card').removeClass('selected');
         $(this).closest('.radio-option-card').addClass('selected');
         state.paymentMethod = $(this).val();
 
-        // Sub-form Toggle
         $('#card-payment-fields, #cod-info-fields, #bank-info-fields').hide();
         if (state.paymentMethod === 'CREDIT_CARD') $('#card-payment-fields').show();
         if (state.paymentMethod === 'CASH_ON_DELIVERY') $('#cod-info-fields').show();
         if (state.paymentMethod === 'BANK_TRANSFER') $('#bank-info-fields').show();
     });
 
-    // Coupon Handler
     $('#apply-coupon-btn').on('click', function () {
         const val = $('#coupon-code-input').val();
         if (val) applyCoupon(val);
     });
 
-    // Place Order Button
     $('#place-order-btn').on('click', function () {
         processOrderPlacement();
     });
 
-    // AI Assistant Widget Handlers
+    // AI Assistant Widget
     $('#ai-trigger-btn').on('click', function () {
         $('#ai-chat-popup').toggle();
     });
@@ -484,7 +721,9 @@ function setupEventListeners() {
     });
 }
 
-// AI Assistant Chat Logic
+// ==========================================================================
+// AI Assistant Chat
+// ==========================================================================
 function handleAIChatSend(userText) {
     const body = $('#ai-chat-body');
     body.append(`<div class="ai-message user-message">${userText}</div>`);

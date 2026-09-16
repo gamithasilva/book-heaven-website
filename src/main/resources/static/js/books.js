@@ -217,7 +217,7 @@ $(document).ready(function () {
     setupEventListeners();
     category_init();
     checkLoginStatus();
-    loadWishlist()
+
 });
 
 function initTheme() {
@@ -250,6 +250,8 @@ function fetchBooksAPI(){
                 state.books = response.body;
 
                 applyFiltersAndSort();
+                loadWishlist();
+                loadCart();
 
             } else {
 
@@ -596,13 +598,140 @@ function resetFilters() {
 // ==========================================================================
 // Cart & Wishlist Global Actions
 // ==========================================================================
-function addToCart(bookId) {
-    const book = state.books.find(b => b.id === bookId);
-    if (!book || book.stock === 0) return;
+// function addToCart(bookId) {
+//     const book = state.books.find(b => b.id === bookId);
+//     if (!book || book.stock === 0) return;
+//
+//     state.cart.push(book);
+//     $('#cart-badge').text(state.cart.length);
+//     showToast(`Added "${book.title}" to cart!`, 'success');
+// }
 
-    state.cart.push(book);
-    $('#cart-badge').text(state.cart.length);
-    showToast(`Added "${book.title}" to cart!`, 'success');
+function addToCart(bookId) {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        showToast("Please login first!", "info");
+        return;
+    }
+
+    const book = state.books.find(b => b.id === bookId);
+
+    if (!book) {
+        showToast("Book not found.", "error");
+        return;
+    }
+
+    if (book.stock <= 0) {
+        showToast("This book is out of stock.", "error");
+        return;
+    }
+
+    $.ajax({
+        url: `api/customer/cart/items/${bookId}?quantity=1`,
+        type: "POST",
+
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+
+        success: function (response) {
+
+            console.log("Add to cart response:", response);
+
+            if (response.status === 200) {
+
+                state.cart = response.body?.items || [];
+
+                updateCartBadge();
+
+                showToast(
+                    `"${book.title}" added to cart!`,
+                    "success"
+                );
+            }
+        },
+
+        error: function (xhr) {
+
+            console.error("Add to cart error:", xhr);
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Please login first!", "info");
+                return;
+            }
+
+            showToast(
+                "Failed to add book to cart.",
+                "error"
+            );
+        }
+    });
+}
+
+function loadCart() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        state.cart = [];
+        updateCartBadge();
+        return;
+    }
+
+    $.ajax({
+        url: "api/customer/cart",
+        type: "GET",
+
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+
+        success: function (response) {
+
+            console.log("FULL CART RESPONSE:", response);
+            console.log("Cart body:", response.body);
+
+            if (response.status === 200 && response.body) {
+
+                state.cart = response.body.items || [];
+
+                console.log(
+                    "Cart items:",
+                    state.cart
+                );
+
+                updateCartBadge();
+            } else {
+
+                state.cart = [];
+                updateCartBadge();
+            }
+        },
+
+        error: function (xhr) {
+
+            console.error(
+                "Failed to load cart:",
+                xhr
+            );
+
+            state.cart = [];
+            updateCartBadge();
+        }
+    });
+}
+
+function updateCartBadge() {
+
+    let totalQuantity = 0;
+
+    state.cart.forEach(item => {
+        totalQuantity += item.quantity || 0;
+    });
+
+    $('#cart-badge').text(totalQuantity);
 }
 
 function toggleWishlist(bookId, event) {

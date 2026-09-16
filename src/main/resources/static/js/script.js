@@ -1,6 +1,6 @@
 /**
  * BookHaven - Home Page Interactive Engine
- * Connected to Spring Boot REST API (api/v1/books, api/v1/wishlist)
+ * Connected to Spring Boot REST API (api/v1/books, api/v1/wishlist, api/customer/cart)
  */
 
 // App State Management
@@ -8,11 +8,12 @@ let cartCount = 0;
 let wishlistCount = 0;
 let booksList = [];
 let userWishlistBookIds = [];
+let userCart = [];
 
 $(document).ready(function() {
-
     checkLoginStatus();
-    loadWishlist(); // Loads wishlist IDs first, then fetches & renders books
+    loadCartAPI();     // Loads active user cart on init
+    loadWishlist();    // Loads wishlist IDs first, then fetches & renders books
     startCountdown();
     setupEventListeners();
 });
@@ -40,7 +41,163 @@ function checkLoginStatus() {
 }
 
 // ==========================================================================
-// 2. REST API Integration (Books & Wishlist)
+// 2. REST API Integration (Cart Operations)
+// ==========================================================================
+
+// Fetch User Cart from Spring Boot API
+function loadCartAPI() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        userCart = [];
+        updateCartBadge();
+        return;
+    }
+
+    $.ajax({
+        url: "api/customer/cart",
+        type: "GET",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(response) {
+            if (response.status === 200 && response.body) {
+                userCart = response.body.items || [];
+            } else {
+                userCart = [];
+            }
+            updateCartBadge();
+        },
+        error: function(xhr) {
+            console.error("Failed to load cart:", xhr);
+            userCart = [];
+            updateCartBadge();
+        }
+    });
+}
+
+// Add Item to Cart API
+function addToCartAPI(bookId, quantity = 1) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        showToast("Please log in first.");
+        return;
+    }
+
+    $.ajax({
+        url: `api/customer/cart/items/${bookId}?quantity=${quantity}`,
+        type: "POST",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(response) {
+            if (response.status === 200) {
+                userCart = response.body?.items || [];
+                updateCartBadge();
+                showToast("Added book to cart!");
+            }
+        },
+        error: function(xhr) {
+            console.error("Add to cart error:", xhr);
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Please log in first.");
+                return;
+            }
+            showToast("Failed to add book to cart.");
+        }
+    });
+}
+
+// Update Item Quantity in Cart API
+function updateCartQuantityAPI(itemId, newQuantity) {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    if (newQuantity <= 0) {
+        removeFromCartAPI(itemId);
+        return;
+    }
+
+    $.ajax({
+        url: `api/customer/cart/items/${itemId}?quantity=${newQuantity}`,
+        type: "PUT",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(response) {
+            if (response.status === 200) {
+                userCart = response.body?.items || [];
+                updateCartBadge();
+                showToast("Cart updated.");
+            }
+        },
+        error: function(xhr) {
+            console.error("Failed to update cart quantity:", xhr);
+            showToast("Failed to update cart quantity.");
+        }
+    });
+}
+
+// Remove Item from Cart API
+function removeFromCartAPI(itemId) {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    $.ajax({
+        url: `api/customer/cart/items/${itemId}`,
+        type: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(response) {
+            if (response.status === 200) {
+                userCart = response.body?.items || [];
+                updateCartBadge();
+                showToast("Item removed from cart.");
+            }
+        },
+        error: function(xhr) {
+            console.error("Failed to remove item from cart:", xhr);
+            showToast("Failed to remove item from cart.");
+        }
+    });
+}
+
+// Clear Entire Cart API
+function clearCartAPI() {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    $.ajax({
+        url: "api/customer/cart/clear",
+        type: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(response) {
+            userCart = [];
+            updateCartBadge();
+            showToast("Cart cleared.");
+        },
+        error: function(xhr) {
+            console.error("Failed to clear cart:", xhr);
+            showToast("Failed to clear cart.");
+        }
+    });
+}
+
+// Calculate total quantity & update DOM badge
+function updateCartBadge() {
+    cartCount = userCart.reduce((total, item) => total + (item.quantity || 0), 0);
+    $('#cart-badge').text(cartCount);
+}
+
+// ==========================================================================
+// 3. REST API Integration (Books & Wishlist)
 // ==========================================================================
 
 // Fetch Wishlist from Spring Boot API
@@ -88,7 +245,7 @@ function fetchBooksAPI() {
         type: "GET",
         success: function(response) {
             if (response.status === 200 && Array.isArray(response.body)) {
-                booksList = response.body.slice(0,8);
+                booksList = response.body.slice(0, 8);
             } else {
                 booksList = [];
             }
@@ -161,7 +318,7 @@ function updateWishlistBadge() {
 }
 
 // ==========================================================================
-// 3. Render Books Grid
+// 4. Render Books Grid
 // ==========================================================================
 function renderBooks(books) {
     const $grid = $('#book-grid');
@@ -220,7 +377,7 @@ function renderBooks(books) {
 }
 
 // ==========================================================================
-// 4. UI Events & Handlers
+// 5. UI Events & Handlers
 // ==========================================================================
 function setupEventListeners() {
     // Theme Toggle
@@ -315,8 +472,10 @@ function setupEventListeners() {
             localStorage.removeItem("username");
             localStorage.removeItem("role");
 
+            userCart = [];
             checkLoginStatus();
             loadWishlist();
+            updateCartBadge();
             showToast('Logged out successfully!');
         }
     });
@@ -359,13 +518,12 @@ $(document).on('click', '.add-to-cart-btn', function(e) {
         return;
     }
 
-    cartCount++;
-    $('#cart-badge').text(cartCount);
-    showToast('Book added to cart!');
+    const bookId = $(this).closest('.book-card').data('id');
+    addToCartAPI(bookId, 1);
 });
 
 // ==========================================================================
-// 5. Utilities & Helpers
+// 6. Utilities & Helpers
 // ==========================================================================
 function updateThemeIcon(theme) {
     const $icon = $('#theme-toggle i');
